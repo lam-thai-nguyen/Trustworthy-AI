@@ -35,7 +35,8 @@ whether income exceeds `$50K`. Treat `sex` as the sensitive attribute.
 
 Described in `PLAN.MD`.
 
-After each step is done, write a small summary starting with `[log]`.
+After each step is done, create a new line and 
+write a small summary starting with `[log]`.
 
 ## Coding guidelines
 

@@ -49,66 +49,57 @@ SHAP-Based Analysis of Proxy Features}
   to be determined
 \end{abstract}
 
-\section{Introduction}
+\section{Introduction}\label{sec:introduction}
 
-Machine-learning models are increasingly used to support decisions about
-people, including decisions related to income, credit, employment, and access
-to services. In these settings, evaluating predictive performance alone is
-insufficient: a model can be accurate on average while exhibiting different
-error rates or prediction rates across demographic groups. Fairness auditing
-therefore requires both a clear definition of the protected groups and an
-explicit comparison between predictive and group-level outcomes.
+Machine-learning systems are increasingly used to support decisions that affect
+people's opportunities, including hiring, credit, access to housing, and
+public services \citep{barocas2019fairness,corbett2017algorithmic,mehrabi2021survey}.
+In the trustworthy-AI literature, models are often shown to be accurate on
+average while still producing unequal error rates or prediction rates across
+demographic groups, particularly when historical inequities are encoded in the
+training data. These findings motivate fairness auditing as a requirement for
+disclosing how a model distributes outcomes and where prediction quality varies
+across groups.
 
-A common first intervention is to remove a sensitive attribute from the model
-inputs. This intervention is appealing because it is simple and easy to
-explain, but it does not guarantee that the resulting model is insensitive to
-that attribute. Other variables may contain information correlated with the
-protected attribute, either because they reflect social structure or because
-they encode related aspects of an individual's circumstances. In this report,
-we refer to such variables as potential \emph{proxy features}. The central
-question is consequently not only whether \texttt{sex} is present in a model,
-but also whether the remaining feature set allows the model to reconstruct
-information associated with \texttt{sex}.
+A common first intervention is to remove a sensitive attribute such as
+\texttt{sex} from the model inputs. This is appealing because it is simple to
+explain and implement, but it does not guarantee that the remaining features
+are neutral with respect to the protected attribute. Other variables may still
+carry information associated with \texttt{sex}, either because they reflect
+social patterns or because they encode related aspects of an individual's
+circumstances. We refer to such variables as potential \emph{proxy features}.
+The central question of this study is therefore not only whether \texttt{sex}
+is present in a model, but whether the remaining feature set allows the model
+to recover information associated with \texttt{sex}.
 
-We investigate this question using the UCI Adult Income dataset, a standard
-benchmark containing demographic, educational, occupational, and work-related
-attributes with a binary target indicating whether annual income exceeds
-\$50{,}000. The dataset is useful for a controlled audit because it contains
-an explicit \texttt{sex} attribute together with several variables that may
-encode related social and economic structure. At the same time, it is not a
-neutral representation of the real world: its categories, missing-value
-patterns, binary treatment of sex, and historical collection context limit the
-claims that can be made from any experiment on it. Our conclusions are
-therefore about this audit design and not about fairness in income prediction
-in general.
+To investigate this question, we use the UCI Adult Income dataset
+\citep{dua2019uci}, a widely used benchmark containing demographic,
+educational, occupational, and work-related attributes with a binary target
+indicating whether annual income exceeds \$50{,}000. The dataset is useful for
+a controlled audit because it contains an explicit \texttt{sex} attribute and
+several variables that may encode social and economic structure. At the same
+time, its historical collection context and binary coding of sex limit what
+can be inferred from any single experiment. Our conclusions are therefore
+about proxy behavior in this audit design rather than a universal claim about
+fairness in income prediction.
 
-The analysis follows a reproducible comparison of model variants. We first
-train a baseline XGBoost classifier with \texttt{sex} available and compare it
-with a model that excludes \texttt{sex}. We then examine
-\texttt{relationship}, \texttt{marital-status}, \texttt{occupation}, and
-\texttt{hours-per-week} as suspected proxies. TreeSHAP feature rankings,
-subgroup comparisons, and feature-ablation experiments are used as
-diagnostic tools for assessing whether these variables retain predictive
-information associated with the sensitive attribute. These analyses are
-exploratory: a high feature importance or a subgroup difference is evidence of
-association in this dataset, not proof that a feature causes disparate
-outcomes.
+Our study follows a reproducible comparison of model variants. We train a
+baseline XGBoost classifier with \texttt{sex} available and compare it with a
+model that excludes \texttt{sex}. We then examine \texttt{relationship},
+\texttt{marital-status}, \texttt{occupation}, and \texttt{hours-per-week} as
+suspected proxies. TreeSHAP feature rankings, subgroup comparisons, and
+feature-ablation experiments are used as diagnostic tools for assessing
+whether these variables retain predictive information associated with the
+sensitive attribute. Figure~\ref{fig:overview-proposed-method} summarizes the
+overall audit pipeline and the comparison between the unconstrained and
+feature-restricted models.
+It proceeds from data preparation and paired model training through proxy
+identification, feature ablation, and fairness-constrained learning, followed
+by a common held-out evaluation of predictive performance and group fairness.
 
-For each model, we report accuracy, balanced accuracy, precision, recall, and
-F1 together with demographic-parity difference and equalized-odds difference
-across \texttt{sex}. These metrics answer different questions and are not
-interchangeable. In particular, reducing a statistical-parity difference can
-come at the cost of predictive performance, while equalized odds focuses on
-error-rate parity rather than parity of positive predictions. We therefore
-keep predictive and fairness metrics in separate parts of the comparison
-rather than treating one aggregate score as a complete definition of
-fairness. We additionally evaluate Fairlearn's
-ExponentiatedGradient procedure under a fairness constraint to examine the
-trade-off between unconstrained prediction and constrained group outcomes.
-
-This report makes three practical contributions:
+This paper makes three practical contributions:
 \begin{itemize}
-  \item It provides a reproducible audit of whether excluding an explicit
+  \item It provides a reproducible audit of whether removing an explicit
   sensitive feature changes fairness measurements in an income-classification
   pipeline.
   \item It uses model explanations and ablation to test the narrower claim
@@ -118,57 +109,54 @@ This report makes three practical contributions:
   comparison that distinguishes observed performance changes from the
   limitations of the selected fairness criteria.
 \end{itemize}
-The study does not attempt robustness analysis or threshold analysis, and it
-does not treat statistical parity or equalized odds as sufficient conditions
-for a fair decision system.
+The remainder of the paper is organized as follows. Section~\ref{sec:related-work} ...
 
-\section{Related Work}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{images/overview_proposed_method.pdf}
+  \caption{Overview of our proposed method. The audit compares explicit-feature
+  removal, proxy ablation, and fairness-constrained learning under a common
+  held-out evaluation.}
+  \label{fig:overview-proposed-method}
+\end{figure}
 
-\paragraph{Fairness definitions and evaluation.}
-Fairness research distinguishes individual-level requirements from
-group-level statistical criteria. The ``fairness through awareness'' framework
-of \citet{dwork2012fairness} requires similar individuals to receive similar
-treatment under a task-specific metric, whereas our study evaluates group
-differences across \texttt{sex}. For supervised classification,
-\citet{hardt2016equality} formalized equality of opportunity and equalized
-odds in terms of conditional prediction rates. These ideas directly motivate
-our reporting of demographic-parity and equalized-odds differences alongside
-accuracy and class-balanced performance. Our goal is not to select one metric
-as a universal definition of fairness, but to show how conclusions about
-feature removal and mitigation depend on which group-level property is
-measured.
+\section{Related Work}\label{sec:related-work}
 
-\paragraph{Proxy features and omitted sensitive attributes.}
-The concern that a model can use protected-group information indirectly is
-central to proxy-discrimination work. \citet{datta2017proxy} formalized
-proxy non-discrimination as a property of data-driven systems in which
-correlated attributes can influence outputs even when the protected attribute
-is absent. We operationalize this concern in a narrower empirical setting:
-we remove \texttt{sex}, rank candidate variables with TreeSHAP, compare
-subgroups, and ablate \texttt{relationship}, \texttt{marital-status},
-\texttt{occupation}, and \texttt{hours-per-week}. Thus, our contribution is
-not a new formal definition of proxy discrimination; it is a reproducible
-audit that connects proxy-focused diagnostics to predictive and fairness
-outcomes in the same model family. The use of SHAP is diagnostic rather than
-causal: an important or subgroup-associated feature is treated as a candidate
-proxy, not as proof that the feature produces discrimination.
+\paragraph{Fairness criteria and trustworthy machine learning.}
+A growing literature in trustworthy machine learning has emphasized that
+predictive accuracy alone does not determine whether a system is ethically or
+legally acceptable for decision-making \citep{barocas2019fairness,
+corbett2017algorithmic,mehrabi2021survey}. Researchers have formalized
+group-level criteria such as statistical parity, equal opportunity, and
+equalized odds, while also stressing that these criteria implement different
+notions of fairness and often conflict with one another in practice
+\citep{dwork2012fairness,hardt2016equality}. Our study follows this
+tradition by reporting both predictive performance and demographic-parity and
+equalized-odds differences rather than collapsing them into a single score.
 
-\paragraph{Mitigation and subgroup coverage.}
-A second line of work changes the learning procedure instead of relying only
-on feature deletion. \citet{agarwal2018reductions} reduced constrained fair
-classification to cost-sensitive classification problems, providing the
-algorithmic basis for the ExponentiatedGradient comparison in this report.
-This lets us place two interventions in one audit: restricting the feature
-set and imposing a fairness constraint while retaining the broader feature
-representation. Finally, \citet{buolamwini2018gender} demonstrated that
-aggregate performance can conceal substantial intersectional disparities.
-Our primary audit is across the binary \texttt{sex} labels available in the
-Adult dataset, so we do not claim to resolve intersectional fairness; instead,
-we use this prior work to frame subgroup analysis and to make the dataset's
-binary attribute representation an explicit limitation.
+\paragraph{Proxy features and explainability.}
+The concern that protected-group information may be reconstructed from other
+features is central to work on proxy discrimination and fairness auditing
+\citep{datta2017proxy}. Explainability methods provide a practical way to
+identify candidate variables that are highly predictive or strongly associated
+with subgroup differences \citep{lundberg2017unified}. We use TreeSHAP as a
+diagnostic lens to rank candidate proxy features. This is not a causal claim:
+a feature's importance or subgroup dependence indicates potential proxy
+structure, not proof that the feature itself generates disparate treatment.
+
+\paragraph{Mitigation strategies and subgroup analysis.}
+A second line of work studies interventions at training time and at inference
+time. Constrained optimization and reductions-based fair classification show
+that it is possible to trade predictive performance against group-based
+constraints \citep{agarwal2018reductions}. Related work on intersectional
+disparities also emphasizes that aggregate performance can conceal large
+subgroup differences \citep{buolamwini2018gender}. Our audit situates feature
+exclusion and fairness-constrained learning within a common evaluation setting,
+while keeping the dataset's binary \texttt{sex} attribute and the associated
+limitations explicit.
 
 
-\section{Methodology}
+\section{Methodology}\label{sec:methodology}
 \subsection{Our proposed method}
 We propose a reproducible, diagnostic audit protocol for testing whether
 removing an explicit sensitive attribute is sufficient to reduce group
@@ -181,15 +169,6 @@ measure the effect of ablating those candidates, and (v) compare feature-based
 interventions with constrained learning. The sensitive attribute is retained
 outside the model feature matrix throughout the experiment so that it can be
 used for subgroup evaluation.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{images/overview_proposed_method.pdf}
-  \caption{Overview of our proposed method. The audit compares explicit-feature
-  removal, proxy ablation, and fairness-constrained learning under a common
-  held-out evaluation.}
-  \label{fig:overview-proposed-method}
-\end{figure}
 
 \paragraph{Leakage-controlled pipeline.}
 The supplied Adult training and test files are cleaned with one deterministic
@@ -379,7 +358,7 @@ threshold analyses; the reported values correspond to the prespecified
 evaluation procedure and fixed prediction rule.
 
 
-\section{Results}
+\section{Results}\label{sec:result}
 
 \subsection{Data preparation and descriptive audit}
 The ETL completed without dropping rows: all 48{,}842 records were retained,
@@ -458,9 +437,9 @@ design.
   \end{tabular}
 \end{table}
 
-\section{Discussion}
+\section{Discussion}\label{sec:discussion}
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
 
 
 

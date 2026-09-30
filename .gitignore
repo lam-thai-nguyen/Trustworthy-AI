@@ -7,3 +7,6 @@ report/*.out
 report/*.synctex.gz
 report/*.bbl
 report/*.blg
+
+# cache
+__pycache__/

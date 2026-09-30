@@ -17,6 +17,8 @@ python -m pip install -r requirements.txt
 The `python3` interpreter is `/home/thai/miniconda3/envs/trustworthy/bin/python3`. 
 If not found, use the interpreter in the output of this bash command `which python3` inside the `trustworthy` environment.
 
+`pip3` is at `/home/thai/miniconda3/envs/trustworthy/bin/pip3`.
+If not found, use the interpreter in the output of this bash command `which pip3` inside the `trustworthy` environment.
 To install new packages for the `trustworthy` environment, use `pip3 install <package>`.
 After installing, run `pip3 freeze > requirements.txt`.
 

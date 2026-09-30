@@ -31,7 +31,7 @@ whether income exceeds `$50K`. Treat `sex` as the sensitive attribute.
 
 ## Required workflow
 
-Described in `../PLAN.MD`.
+Described in `PLAN.MD`.
 
 ## Coding guidelines
 

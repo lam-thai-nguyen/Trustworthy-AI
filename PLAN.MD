@@ -23,6 +23,8 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
 
    [log] Run `python3 scripts/eda.py` to create exploratory summary tables and visualizations in
    `data/eda/`.
+
+   [log] Added `scripts/train_xgboost.py` and `trustworthy_ai.model` to fit the baseline XGBoost model with training-only preprocessing on the fixed official split; artifacts and test predictions are written to `data/models/baseline_xgboost/`.
 2. **Measure baseline fairness** — Report accuracy, balanced accuracy, precision,
    recall, F1, demographic-parity difference, and equalized-odds difference
    across `sex`.

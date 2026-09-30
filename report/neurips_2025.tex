@@ -236,6 +236,22 @@ variants remove suspected proxies in a prespecified sequence, including
 interpret a feature's removal as proof that the feature is intrinsically
 unfair.
 
+\paragraph{Experimental setup.}
+The baseline uses the official Adult training file (32{,}561 records) for
+fitting and the official Adult test file (16{,}281 records) for final
+evaluation; no additional random split is drawn. The model input contains the
+six numeric predictors and eight categorical predictors listed in the
+dataset, including \texttt{sex}. Numeric columns are passed through and
+categorical columns are one-hot encoded with unknown test categories ignored.
+The transformer is fitted on the training split only. The resulting baseline
+representation contains 108 transformed features. We use XGBoost with
+300 trees, maximum depth 6, learning rate 0.1, histogram tree construction,
+and random seed 42; subsampling and column subsampling are both 1.0, and the
+training objective is binary logistic classification with log-loss evaluation.
+Predictions use the positive-class probability threshold 0.5. The saved test
+predictions retain \texttt{sex} and the observed income label solely for
+post-hoc evaluation.
+
 \paragraph{Proxy diagnostics.}
 Proxy analysis is performed only after fitting the sex-excluded model. We use
 TreeSHAP to rank feature contributions to individual predictions
@@ -309,6 +325,28 @@ comparison is not a model fairness result. In the cleaned data, 11{,}687 of
   \label{fig:eda-income}
 \end{figure}
 
+\begin{table}[t]
+  \centering
+  \caption{Experimental data and preprocessing setup.}
+  \label{tab:experimental-setup}
+  \begin{tabular}{ll}
+    \toprule
+    Item & Specification \\
+    \midrule
+    Dataset & UCI Adult Income \\
+    Training/test rows & 32{,}561 / 16{,}281 \\
+    Predictors & 14 (6 numeric, 8 categorical) \\
+    Target & Income above \$50{,}000 (binary) \\
+    Sensitive attribute & \texttt{sex}, retained for evaluation \\
+    Missing categorical values & 6{,}465 mapped to \texttt{Missing} \\
+    Encoder & Training-fitted one-hot encoding \\
+    Classifier & XGBoost, 300 trees, depth 6, learning rate 0.1 \\
+    Decision rule & Positive if predicted probability $\geq 0.5$ \\
+    Random seed & 42 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.72\linewidth]{images/income_rate_by_education.png}
@@ -362,6 +400,83 @@ evaluation procedure and fixed prediction rule.
 
 
 \section{Results}
+
+\subsection{Data preparation and descriptive audit}
+The ETL completed without dropping rows: all 48{,}842 records were retained,
+including the documented missing categorical values. The cleaned data contain
+37{,}155 records at or below \$50{,}000 and 11{,}687 records above \$50{,}000.
+The descriptive target rate differs across the observed binary sex categories:
+30.38\% among males (9{,}918/32{,}650) and 10.93\% among females
+(1{,}769/16{,}192). This is a property of the dataset and is not a prediction
+or a model fairness metric. It establishes the group labels and target
+distribution used in the subsequent held-out evaluation.
+
+\begin{table}[t]
+  \centering
+  \caption{Descriptive statistics from the cleaned Adult dataset.}
+  \label{tab:eda-summary}
+  \begin{tabular}{lrrr}
+    \toprule
+    Group & Rows & Above \$50K & Rate (\%) \\
+    \midrule
+    Female & 16{,}192 & 1{,}769 & 10.93 \\
+    Male & 32{,}650 & 9{,}918 & 30.38 \\
+    \midrule
+    All records & 48{,}842 & 11{,}687 & 23.93 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Baseline performance and fairness}
+Table~\ref{tab:baseline-metrics} reports the first held-out baseline result.
+On the 16{,}281-record test split, the model achieved 87.46\% accuracy and
+79.90\% balanced accuracy. Precision was 77.86\%, recall was 65.57\%, and F1
+was 71.19\%. These values describe the unconstrained model that includes
+\texttt{sex}; they are not evidence that the model is fair or unfair without
+reference to the explicitly reported group metrics.
+
+The baseline positive prediction rate was 8.49\% for females and 25.59\% for
+males, producing a demographic-parity difference of 0.1710. The true-positive
+rates were 0.6102 and 0.6640, respectively, while the false-positive rates were
+0.0207 and 0.0811. The equalized-odds difference was therefore 0.0604, driven
+by the false-positive-rate gap rather than the true-positive-rate gap. These
+results are descriptive of this fixed split, model, and threshold; they do not
+establish causal discrimination or generalize beyond the dataset and audit
+design.
+
+\begin{table}[t]
+  \centering
+  \caption{Baseline XGBoost performance and fairness on the held-out test split
+  ($n=16{,}281$).}
+  \label{tab:baseline-metrics}
+  \begin{tabular}{lr}
+    \toprule
+    Metric & Value \\
+    \midrule
+    Accuracy & 0.8746 \\
+    Balanced accuracy & 0.7990 \\
+    Precision & 0.7786 \\
+    Recall & 0.6557 \\
+    F1 & 0.7119 \\
+    Demographic-parity difference & 0.1710 \\
+    Equalized-odds difference & 0.0604 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{Baseline group-level rates on the held-out test split.}
+  \label{tab:baseline-groups}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Sex & Rows & Selection rate & TPR & FPR \\
+    \midrule
+    Female & 5{,}421 & 0.0849 & 0.6102 & 0.0207 \\
+    Male & 10{,}860 & 0.2559 & 0.6640 & 0.0811 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{Discussion}
 

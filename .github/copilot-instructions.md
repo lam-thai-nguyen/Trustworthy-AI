@@ -31,30 +31,7 @@ whether income exceeds `$50K`. Treat `sex` as the sensitive attribute.
 
 ## Required workflow
 
-- Keep the pipeline reproducible with a fixed train/test split and documented
-  preprocessing.
-- Handle the dataset's missing values explicitly.
-- Train and compare:
-  - a baseline model with `sex`;
-  - a model without `sex`;
-  - models with suspected proxy features removed;
-  - a Fairlearn `ExponentiatedGradient` mitigation model.
-- Use XGBoost for the predictive model and TreeSHAP for feature explanations.
-- Investigate `relationship`, `marital-status`, `occupation`, and
-  `hours-per-week` as potential proxies using SHAP rankings, subgroup
-  comparisons, and feature ablation.
-- Measure accuracy, balanced accuracy, precision, recall, F1,
-  demographic-parity difference, and equalized-odds difference across `sex`.
-- Keep model comparisons in a clear table and preserve the distinction between
-  predictive performance and fairness metrics.
-
-## Scope
-
-Do not add robustness or classification-threshold analysis. The final report
-must be under 15 pages and should explain the fairness/performance trade-offs,
-the limitations of the Adult dataset, its binary treatment of sex, missing
-values, intersectional groups, and the limitations of statistical parity and
-equalized odds.
+Described in `../PLAN.MD`.
 
 ## Coding guidelines
 

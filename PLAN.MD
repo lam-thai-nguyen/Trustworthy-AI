@@ -28,6 +28,8 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
 2. **Measure baseline fairness** — Report accuracy, balanced accuracy, precision,
    recall, F1, demographic-parity difference, and equalized-odds difference
    across `sex`.
+
+   [log] Added reusable baseline evaluation metrics and wrote performance and fairness results to `data/models/baseline_xgboost/metrics.json`.
 3. **Compare feature removal** — Evaluate models with `sex` included and removed
    to determine whether excluding the explicit sensitive feature reduces bias.
 4. **Analyze proxy features** — Use TreeSHAP rankings, subgroup comparisons, and

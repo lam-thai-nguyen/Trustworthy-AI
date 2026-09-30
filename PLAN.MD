@@ -43,6 +43,9 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    the finding that removing `sex` is insufficient when proxy features remain,
    and on the trade-offs introduced by fairness constraints.
 
+[log] Drafted the proposed audit method in `report/neurips_2025.tex` and added
+the `Overview of our proposed method` SVG figure at `report/images/overview_proposed_method.svg`.
+
 ## Scope and limitations
 
 Do not include robustness or threshold analysis. Discuss the dataset's age,

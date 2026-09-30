@@ -190,9 +190,87 @@ binary attribute representation an explicit limitation.
 
 \section{Methodology}
 \subsection{Our proposed method}
-The manuscript workflow used the local Scientific Agent Skills procedures for
-evidence-aware scientific writing and consistency checks
-\citep{kassis2026scientific}.
+We propose a reproducible, diagnostic audit protocol for testing whether
+removing an explicit sensitive attribute is sufficient to reduce group
+disparities. The protocol treats feature deletion as one intervention in a
+larger comparison rather than as evidence of fairness by itself. It has five
+stages: (i) construct a leakage-controlled preprocessing and evaluation
+pipeline, (ii) compare models with and without \texttt{sex}, (iii) identify
+candidate proxy features using explanations and subgroup diagnostics, (iv)
+measure the effect of ablating those candidates, and (v) compare feature-based
+interventions with constrained learning. The sensitive attribute is retained
+outside the model feature matrix throughout the experiment so that it can be
+used for subgroup evaluation.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{images/overview_proposed_method.pdf}
+  \caption{Overview of our proposed method. The audit compares explicit-feature
+  removal, proxy ablation, and fairness-constrained learning under a common
+  held-out evaluation.}
+  \label{fig:overview-proposed-method}
+\end{figure}
+
+\paragraph{Leakage-controlled pipeline.}
+The supplied Adult training and test files are cleaned with one deterministic
+ETL procedure. Categorical variables are represented explicitly, including
+the documented missing-value category, and the income label is mapped to a
+binary target. Preprocessing components such as category encoding and numeric
+transformations are fitted on the training split only and then applied to the
+held-out test split. The target and \texttt{sex} are never used to fit
+preprocessing for the model features. This separation prevents information
+from the evaluation split from influencing training while preserving the
+attribute needed for fairness measurement.
+
+\paragraph{Model comparison.}
+The primary predictive model is an XGBoost classifier trained under a fixed
+configuration and evaluated with the same decision rule for every variant. We
+first fit a baseline using the full permitted feature set, including
+\texttt{sex}. We then fit a sex-excluded model after removing only
+\texttt{sex} from the feature matrix. This paired comparison isolates the
+effect of explicit attribute removal while holding the data split,
+preprocessing, model family, and evaluation procedure constant. Additional
+variants remove suspected proxies in a prespecified sequence, including
+\texttt{relationship}, \texttt{marital-status}, \texttt{occupation}, and
+\texttt{hours-per-week}. We report every attempted variant and do not
+interpret a feature's removal as proof that the feature is intrinsically
+unfair.
+
+\paragraph{Proxy diagnostics.}
+Proxy analysis is performed only after fitting the sex-excluded model. We use
+TreeSHAP to rank feature contributions to individual predictions
+\citep{lundberg2017unified}, summarize the rankings over the evaluation
+population, and compare feature distributions and prediction rates across the
+observed \texttt{sex} groups. Features are carried forward as candidate
+proxies when their model contribution and subgroup association provide
+convergent evidence in this dataset. We then perform feature ablation by
+retraining the model without one candidate or a prespecified candidate set.
+The ablation comparison distinguishes three quantities: predictive change,
+change in group metrics, and change in the explanatory profile. Because these
+diagnostics are observational and model-dependent, they identify candidate
+proxy pathways rather than establish causality.
+
+\paragraph{Fairness-constrained comparison.}
+As a complementary intervention, we train Fairlearn
+ExponentiatedGradient models with the broader feature representation and
+constraints based on demographic parity or equalized odds
+\citep{agarwal2018reductions}. The sensitive attribute is supplied to the
+mitigation procedure as a constraint variable, not as an ordinary predictive
+feature. This comparison tests whether an explicit group constraint changes
+the performance--fairness trade-off differently from deleting features. The
+unconstrained baseline, sex-excluded model, proxy-ablation variants, and
+constrained models are evaluated on the same held-out data and summarized in
+one comparison table.
+
+\paragraph{Decision and reporting rule.}
+For each variant, we report accuracy, balanced accuracy, precision, recall,
+F1, demographic-parity difference, and equalized-odds difference. Lower
+fairness-difference values indicate smaller observed disparities under the
+corresponding definition, but no single metric is treated as a sufficient
+fairness criterion. The protocol therefore reports predictive and fairness
+results separately, records feature sets and preprocessing decisions, and
+interprets changes only within the Adult dataset, selected model family,
+binary \texttt{sex} representation, and fixed prediction rule.
 \subsection{Dataset}
 We use the UCI Adult Income dataset \citep{dua2019uci}, comprising 48{,}842
 records and 14 predictors. The binary target is whether annual income exceeds

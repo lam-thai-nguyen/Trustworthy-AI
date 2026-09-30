@@ -10,3 +10,6 @@ report/*.blg
 
 # cache
 __pycache__/
+
+# vscode
+.vscode/

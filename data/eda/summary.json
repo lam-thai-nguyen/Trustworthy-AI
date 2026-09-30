@@ -1,0 +1,16 @@
+{
+  "input": "data/processed/adult_clean.csv",
+  "rows": 48842,
+  "figures": [
+    "age_by_income.png",
+    "income_distribution.png",
+    "income_rate_by_education.png",
+    "income_rate_by_sex.png",
+    "missing_values.png",
+    "numeric_distributions.png"
+  ],
+  "income_rate_by_sex_percent": {
+    "Male": 30.377,
+    "Female": 10.925
+  }
+}

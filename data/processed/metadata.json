@@ -1,0 +1,35 @@
+{
+  "source_train": "data/adult/adult.data",
+  "source_test": "data/adult/adult.test",
+  "output_dir": "data/processed",
+  "train_rows": 32561,
+  "test_rows": 16281,
+  "total_rows": 48842,
+  "missing_values_replaced": 6465,
+  "missing_values_by_column": {
+    "native-country": 857,
+    "occupation": 2809,
+    "workclass": 2799
+  },
+  "income_counts": {
+    "<=50K": 24720,
+    ">50K": 7841
+  },
+  "columns": [
+    "age",
+    "workclass",
+    "fnlwgt",
+    "education",
+    "education-num",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "sex",
+    "capital-gain",
+    "capital-loss",
+    "hours-per-week",
+    "native-country",
+    "income"
+  ]
+}

@@ -72,11 +72,12 @@
   <line x1="1025" y1="245" x2="1061" y2="245" class="connector" marker-end="url(#arrow)"/>
   <line x1="1360" y1="245" x2="1396" y2="245" class="connector" marker-end="url(#arrow)"/>
 
-  <rect x="227.5" y="570" width="1310" height="145" rx="14" class="result"/>
+  <rect x="227.5" y="570" width="1310" height="185" rx="14" class="result"/>
   <text x="882.5" y="610" text-anchor="middle" class="stage">Common held-out evaluation</text>
   <text x="882.5" y="648" text-anchor="middle" class="strong">predictive performance</text>
   <text x="882.5" y="675" text-anchor="middle" class="body">accuracy · balanced accuracy · precision · recall · F1</text>
   <text x="882.5" y="704" text-anchor="middle" class="strong">group fairness</text>
+  <text x="882.5" y="735" text-anchor="middle" class="body">demographic parity difference · equalized odds difference</text>
 
   <!-- bus: outer path has clean mitered corners -->
   <path d="M212 420V492H1552V420" class="connector"/>

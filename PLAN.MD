@@ -17,6 +17,12 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
 
 1. **Build a reproducible pipeline** — Load the dataset from `data/adult` and clean it, create a
    fixed train/test split, and train the baseline XGBoost model.
+
+   [log] From the repository root, run `python3 scripts/run_etl.py`. It writes cleaned data and
+   run metadata to `data/processed/`.
+
+   [log] Run `python3 scripts/eda.py` to create exploratory summary tables and visualizations in
+   `data/eda/`.
 2. **Measure baseline fairness** — Report accuracy, balanced accuracy, precision,
    recall, F1, demographic-parity difference, and equalized-odds difference
    across `sex`.

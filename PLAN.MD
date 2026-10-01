@@ -1,4 +1,4 @@
-# Fairness Auditing of a Credit Model: SHAP + Proxy-Feature Hunt
+# Fairness Auditing of an Income-Classification Model: SHAP + Proxy-Feature Hunt
 
 ## Objective
 

@@ -61,16 +61,24 @@ and allow the model to reproduce group disparities
 \citep{datta2017proxy}. Removing \texttt{sex} therefore does not by itself
 establish that a model is fair.
 
-This paper studies that problem in income classification. We use the UCI Adult
-Income dataset, which contains demographic, educational, occupational, and
-work-related attributes and a binary target indicating whether annual income
-exceeds \$50{,}000 \citep{dua2019uci}. The dataset provides a useful setting
-for a controlled audit because it contains an explicit \texttt{sex} attribute
-alongside several features that may encode social and economic structure.
-Nevertheless, the dataset reflects a particular historical collection process,
-uses a binary representation of sex, and cannot support universal conclusions
-about fairness in income prediction. Our conclusions are therefore limited to
-the observed groups, features, model choices, and audit design.
+This paper studies that problem in income classification, where
+\texttt{sex} is treated as a sensitive feature because it marks a socially
+salient group for which historical and structural inequalities can affect
+access to education, occupations, wages, and other opportunities represented in
+the data \citep{mehrabi2021survey,barocas2019fairness}. The concern is not that
+sex is inherently inappropriate for prediction or that it should never be
+observed; rather, using it, or information that acts as its proxy, may allow a
+model to reproduce or amplify unequal treatment in decisions related to
+economic opportunity. We use the UCI Adult Income dataset, which contains
+demographic, educational, occupational, and work-related attributes and a
+binary target indicating whether annual income exceeds \$50{,}000
+\citep{dua2019uci}. The dataset provides a useful setting for a controlled
+audit because it contains an explicit \texttt{sex} attribute alongside several
+features that may encode social and economic structure. Nevertheless, the
+dataset reflects a particular historical collection process, uses a binary
+representation of sex, and cannot support universal conclusions about fairness
+in income prediction. Our conclusions are therefore limited to the observed
+groups, features, model choices, and audit design.
 
 We ask whether excluding \texttt{sex} changes the fairness of an
 income-classification model and whether remaining features can act as proxies

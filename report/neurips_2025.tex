@@ -164,7 +164,7 @@ in the sex-excluded XGBoost model and to prioritize variables such as
 \texttt{hours-per-week} for further investigation. SHAP, however, is an
 explanatory device rather than a fairness test: a large attribution indicates
 model reliance, not discriminatory intent or causal influence. This caveat is
-especially important for Adult because its predictors are dependent.
+especially important for Adult because its features are dependent.
 \citet{aas2021explaining} show that common SHAP approximations can be
 misleading when feature independence assumptions fail and propose
 dependence-aware approximations and grouped explanations. Our use of
@@ -213,97 +213,62 @@ explainability cost, under the stated dataset and audit limitations.
 
 \section{Methodology}\label{sec:methodology}
 \subsection{Our proposed method}
-We propose a reproducible, diagnostic audit protocol for testing whether
-removing an explicit sensitive attribute is sufficient to reduce group
-disparities. The protocol treats feature deletion as one intervention in a
-larger comparison rather than as evidence of fairness by itself. It has five
-stages: (i) construct a leakage-controlled preprocessing and evaluation
-pipeline, (ii) compare models with and without \texttt{sex}, (iii) identify
-candidate proxy features using explanations and subgroup diagnostics, (iv)
-measure the effect of ablating those candidates, and (v) compare feature-based
-interventions with constrained learning. The sensitive attribute is retained
-outside the model feature matrix throughout the experiment so that it can be
-used for subgroup evaluation.
+Figure~\ref{fig:overview-proposed-method} summarizes the proposed fairness
+audit as a five-stage workflow: prepare the UCI Adult Income dataset, compare XGBoost
+models with and without \texttt{sex}, identify and ablate candidate proxy
+features, and apply fairness constraints before evaluating every variant on
+the same held-out test set.
 
-\paragraph{Leakage-controlled pipeline.}
-The supplied Adult training and test files are cleaned with one deterministic
-ETL procedure. Categorical variables are represented explicitly, including
-the documented missing-value category, and the income label is mapped to a
-binary target. Preprocessing components such as category encoding and numeric
-transformations are fitted on the training split only and then applied to the
-held-out test split. The target and \texttt{sex} are never used to fit
-preprocessing for the model features. This separation prevents information
-from the evaluation split from influencing training while preserving the
-attribute needed for fairness measurement.
+\paragraph{Prepare the data.}
+We first clean and encode the dataset using a deterministic preprocessing
+pipeline. Preprocessing is fitted on the training data only and then applied
+to the held-out data to prevent leakage. The sensitive feature,
+\texttt{sex}, is retained outside the model feature matrix so that it remains
+available for subgroup auditing even when it is excluded from model training.
+Further details about the dataset and preprocessing procedure are given in~\ref{subsec:Data}.
 
-\paragraph{Model comparison.}
-The primary predictive model is an XGBoost classifier trained under a fixed
-configuration and evaluated with the same decision rule for every variant. We
-first fit a baseline using the full permitted feature set, including
-\texttt{sex}. We then fit a sex-excluded model after removing only
-\texttt{sex} from the feature matrix. This paired comparison isolates the
-effect of explicit attribute removal while holding the data split,
-preprocessing, model family, and evaluation procedure constant. Additional
-variants remove suspected proxies in a prespecified sequence, including
+\paragraph{Compare models with and without \texttt{sex}.}
+We train XGBoost models using the same data split, preprocessing, and decision
+rule. One baseline includes \texttt{sex}, while a paired model removes only
+that feature. This comparison isolates the effect of explicit feature removal
+while leaving the model family and experimental conditions unchanged. The
+sex-excluded model is therefore treated as an unawareness baseline, not as
+evidence that the remaining features are free of sensitive information.
+
+\paragraph{Identify candidate proxy features.}
+We analyze the sex-excluded model with TreeSHAP and subgroup comparisons
+\citep{lundberg2017unified}. Features are treated as candidate proxies when
+they both contribute to predictions and show relevant differences across the
+observed \texttt{sex} groups. This analysis focuses on features such as
 \texttt{relationship}, \texttt{marital-status}, \texttt{occupation}, and
-\texttt{hours-per-week}. We report every attempted variant and do not
-interpret a feature's removal as proof that the feature is intrinsically
-unfair.
+\texttt{hours-per-week}. These diagnostics identify model associations rather
+than establish causal or normative claims about any feature.
 
-\paragraph{Experimental setup.}
-The baseline uses the official Adult training file (32{,}561 records) for
-fitting and the official Adult test file (16{,}281 records) for final
-evaluation; no additional random split is drawn. The model input contains the
-six numeric predictors and eight categorical predictors listed in the
-dataset, including \texttt{sex}. Numeric columns are passed through and
-categorical columns are one-hot encoded with unknown test categories ignored.
-The transformer is fitted on the training split only. The resulting baseline
-representation contains 108 transformed features. We use XGBoost with
-300 trees, maximum depth 6, learning rate 0.1, histogram tree construction,
-and random seed 42; subsampling and column subsampling are both 1.0, and the
-training objective is binary logistic classification with log-loss evaluation.
-Predictions use the positive-class probability threshold 0.5. The saved test
-predictions retain \texttt{sex} and the observed income label solely for
-post-hoc evaluation.
+\paragraph{Ablate proxies and retrain model variants.}
+We test these candidate proxies through controlled ablation. Individual
+features and selected feature sets are removed, and the XGBoost model is
+retrained under the same conditions. Comparing the resulting variants with
+the sex-excluded model shows whether proxy removal changes model performance,
+group disparities, or feature-level explanations.
 
-\paragraph{Proxy diagnostics.}
-Proxy analysis is performed only after fitting the sex-excluded model. We use
-TreeSHAP to rank feature contributions to individual predictions
-\citep{lundberg2017unified}, summarize the rankings over the evaluation
-population, and compare feature distributions and prediction rates across the
-observed \texttt{sex} groups. Features are carried forward as candidate
-proxies when their model contribution and subgroup association provide
-convergent evidence in this dataset. We then perform feature ablation by
-retraining the model without one candidate or a prespecified candidate set.
-The ablation comparison distinguishes three quantities: predictive change,
-change in group metrics, and change in the explanatory profile. Because these
-diagnostics are observational and model-dependent, they identify candidate
-proxy pathways rather than establish causality.
+\paragraph{Apply fairness-constrained learning.}
+We compare feature removal with Fairlearn's
+\texttt{ExponentiatedGradient} reduction
+\citep{agarwal2018reductions}. The constrained models use \texttt{sex} as the
+constraint variable and impose either demographic-parity or equalized-odds
+constraints, rather than using it as an ordinary model feature. This provides
+a direct comparison between proxy-focused feature interventions and
+fairness-constrained learning.
 
-\paragraph{Fairness-constrained comparison.}
-As a complementary intervention, we train Fairlearn
-ExponentiatedGradient models with the broader feature representation and
-constraints based on demographic parity or equalized odds
-\citep{agarwal2018reductions}. The sensitive attribute is supplied to the
-mitigation procedure as a constraint variable, not as an ordinary predictive
-feature. This comparison tests whether an explicit group constraint changes
-the performance--fairness trade-off differently from deleting features. The
-unconstrained baseline, sex-excluded model, proxy-ablation variants, and
-constrained models are evaluated on the same held-out data and summarized in
-one comparison table.
+\paragraph{Common held-out evaluation.}
+Finally, all model variants are evaluated on the same held-out data using a
+common prediction rule. We compare predictive performance and group fairness
+for the baseline, sex-excluded, proxy-ablated, and constrained models. The
+specific evaluation measures and their definitions are described in~\ref{subsec:Metrics}.
 
-\paragraph{Decision and reporting rule.}
-For each variant, we report accuracy, balanced accuracy, precision, recall,
-F1, demographic-parity difference, and equalized-odds difference. Lower
-fairness-difference values indicate smaller observed disparities under the
-corresponding definition, but no single metric is treated as a sufficient
-fairness criterion. The protocol therefore reports predictive and fairness
-results separately, records feature sets and preprocessing decisions, and
-interprets changes only within the Adult dataset, selected model family,
-binary \texttt{sex} representation, and fixed prediction rule.
-\subsection{Dataset}
+\subsection{Dataset}\label{subsec:Data}
 We use the UCI Adult Income dataset \citep{dua2019uci}, comprising 48{,}842
-records and 14 predictors. The binary target is whether annual income exceeds
+records and 14 features. The binary target is whether annual income exceeds
 \$50{,}000, and \texttt{sex} is retained as a sensitive attribute for
 evaluation. We preserve the dataset's supplied training and test files rather
 than drawing a new split.
@@ -349,7 +314,7 @@ comparison is not a model fairness result. In the cleaned data, 11{,}687 of
     \midrule
     Dataset & UCI Adult Income \\
     Training/test rows & 32{,}561 / 16{,}281 \\
-    Predictors & 14 (6 numeric, 8 categorical) \\
+    Features & 14 (6 numeric, 8 categorical) \\
     Target & Income above \$50{,}000 (binary) \\
     Sensitive attribute & \texttt{sex}, retained for evaluation \\
     Missing categorical values & 6{,}465 mapped to \texttt{Missing} \\
@@ -368,7 +333,8 @@ comparison is not a model fairness result. In the cleaned data, 11{,}687 of
   cleaned dataset.}
   \label{fig:eda-education}
 \end{figure}
-\subsection{Evaluation metrics}
+
+\subsection{Evaluation metrics}\label{subsec:Metrics}
 We evaluate each model on the held-out test split using both predictive
 performance and group fairness metrics. Predictive performance is summarized
 by accuracy, balanced accuracy, precision, recall, and F1 score. Accuracy is

@@ -33,8 +33,12 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    across `sex`.
 
    [log] Added reusable baseline evaluation metrics and wrote performance and fairness results to `data/models/baseline_xgboost/metrics.json`.
+
+   [log] Exported manuscript-ready baseline performance and group-fairness metrics for the XGBoost comparison.
 3. **Compare feature removal** — Evaluate models with `sex` included and removed
    to determine whether excluding the explicit sensitive feature reduces bias.
+
+   [log] Added `scripts/compare_sex_feature.py` to train matched XGBoost models with and without `sex`, write comparison tables to `data/models/sex_feature_comparison/`, and generate the planned performance/fairness and group prediction-rate figures.
 4. **Analyze proxy features** — Use TreeSHAP rankings, subgroup comparisons, and
    feature ablation to identify features such as `relationship`,
    `marital-status`, `occupation`, and `hours-per-week` that retain information

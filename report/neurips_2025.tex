@@ -381,7 +381,13 @@ positive predictions.
 
 \paragraph{Group fairness.}
 We report demographic-parity difference (DPD) and equalized-odds difference
-(EOD) across the observed \texttt{sex} groups. DPD compares positive
+(EOD) across the observed \texttt{sex} groups. As an auxiliary quantity for
+interpreting DPD and EOD, we also report the group-specific selection rate
+\[
+  \mathrm{SR}_g=P(\widehat{Y}=1\mid A=g),
+\]
+which is the proportion of records in group \(g\) receiving a positive
+prediction. DPD compares positive
 prediction rates without conditioning on the true income label:
 \[
   \mathrm{DPD}
@@ -427,7 +433,120 @@ and the limitations of any single fairness criterion.
 
 \section{Results}\label{sec:result}
 
+\subsection{XGBoost With and Without the Sensitive Feature}
 
+We first compared two XGBoost models on the same held-out test split
+(\(n=16{,}281\)): a model using all features, including \texttt{sex}, and a
+paired model excluding only \texttt{sex}. The sensitive attribute was retained
+for evaluation in both cases. Table~\ref{tab:sex-feature-performance} reports
+the predictive performance of the two models. Their results are nearly
+identical: the sex-excluded model has Acc of 0.8748, BAcc of
+0.7996, Pr of 0.7783, Rc of 0.6570, and F1 of 0.7125, compared with
+0.8746, 0.7990, 0.7786, 0.6557, and 0.7119, respectively, for the model that
+includes \texttt{sex}. Thus, excluding the explicit sensitive feature did not
+produce a meaningful change in the predictive performance observed on this
+test split.
+
+\begin{table}[t]
+  \centering
+  \caption{Predictive performance of XGBoost models trained with and without
+  the \texttt{sex} feature on the fixed held-out test split
+  (\(n=16{,}281\)). Difference is computed as without \texttt{sex} minus with
+  \texttt{sex}.}
+  \label{tab:sex-feature-performance}
+  \begin{tabular}{lccc}
+    \toprule
+    Metric & With \texttt{sex} & Without \texttt{sex} & Difference \\
+    \midrule
+    Acc & 0.8746 & 0.8748 & +0.0001 \\
+    BAcc & 0.7990 & 0.7996 & +0.0005 \\
+    Pr & 0.7786 & 0.7783 & -0.0004 \\
+    Rc & 0.6557 & 0.6570 & +0.0013 \\
+    F1 & 0.7119 & 0.7125 & +0.0006 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The fairness results are shown in Table~\ref{tab:sex-feature-fairness}. The
+model including \texttt{sex} assigns positive predictions to 8.49\% of female
+records and 25.59\% of male records, yielding a DPD of 0.1710. After removing
+\texttt{sex}, the corresponding positive
+prediction rates are 8.85\% and 25.48\%, and DPD is 0.1662. The reduction in
+DPD is therefore small (0.0048 on the reported test split). EOD also changes
+only modestly, from 0.0604 to 0.0575. For the sex-excluded model, the TPR
+difference is 0.0354 and the FPR difference is 0.0575; the latter determines the reported
+EOD. These results show persistent group differences after removing
+\texttt{sex}, but they do not by themselves identify which remaining features
+account for those differences.
+
+\begin{table}[t]
+  \centering
+  \caption{Group-specific selection rates and fairness metrics for XGBoost
+  models trained with and without \texttt{sex}. Female and male test-group
+  sizes are \(n=5{,}421\) and \(n=10{,}860\), respectively. DPD and EOD are
+  reported once per model because they summarize the two groups.}
+  \label{tab:sex-feature-fairness}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{llcccccccc}
+    \toprule
+    Model & Group & SR & TPR & FPR & DPD & TPR diff. & FPR diff. & EOD \\
+    \midrule
+    With \texttt{sex} & Female & 0.0849 & 0.6102 & 0.0207 & 0.1710 & 0.0538 & 0.0604 & 0.0604 \\
+    With \texttt{sex} & Male   & 0.2559 & 0.6640 & 0.0811 & -- & -- & -- & -- \\
+    \midrule
+    Without \texttt{sex} & Female & 0.0885 & 0.6271 & 0.0228 & 0.1662 & 0.0354 & 0.0575 & 0.0575 \\
+    Without \texttt{sex} & Male   & 0.2548 & 0.6625 & 0.0802 & -- & -- & -- & -- \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+Figure~\ref{fig:sex-feature-metrics} presents the principal performance and
+fairness metrics together. The performance panels reinforce the close
+agreement between the two models, while the DPD and EOD panels show that the
+fairness differences are also small relative to the observed disparity
+remaining in both models. Figure~\ref{fig:sex-feature-selection} provides the
+group-level view underlying the DPD values: the positive prediction rate is
+substantially higher for male than female records under both feature sets.
+Removing \texttt{sex} slightly raises the female selection rate and slightly
+lowers the male selection rate, but the two bars remain far apart. The
+figures therefore provide a visual check of the tabulated results rather than
+suggesting a large effect that is not present in the measurements.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.82\linewidth]{images/performance_fairness_comparison.png}
+  \caption{Predictive performance and group-fairness metrics for XGBoost
+  models trained with and without \texttt{sex}. The four panels report
+  balanced accuracy, F1, DPD, and EOD on the same held-out test split.
+  Higher values are preferable for the predictive metrics, whereas lower
+  values indicate smaller observed group disparity for DPD and EOD.}
+  \label{fig:sex-feature-metrics}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.72\linewidth]{images/group_positive_prediction_rates.png}
+  \caption{Positive prediction rates by observed \texttt{sex} group for
+  XGBoost models trained with and without \texttt{sex}. Removing the feature
+  produces only a small change in either group rate, and the male--female
+  difference remains visible for both models.}
+  \label{fig:sex-feature-selection}
+\end{figure}
+
+Taken together, Table~\ref{tab:sex-feature-performance},
+Table~\ref{tab:sex-feature-fairness}, and
+Figures~\ref{fig:sex-feature-metrics}--\ref{fig:sex-feature-selection} show
+that removing \texttt{sex} alone is insufficient to substantially change
+either predictive behavior or the measured group disparities in this
+experiment. The result is consistent with the possibility that other
+features retain information associated with the observed \texttt{sex}
+groups. It is not, however, evidence that any particular feature is a proxy,
+nor does it establish a causal explanation; those questions are addressed by
+the proxy-feature identification and removal analyses that follow.
+
+\subsection{Proxy-Feature Identification and Removal}
+
+\subsection{Fairness-Constrained Retraining}
 
 \section{Discussion}\label{sec:discussion}
 

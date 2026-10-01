@@ -34,6 +34,13 @@ def _build_parser() -> argparse.ArgumentParser:
         default=Path("data/models/baseline_xgboost"),
     )
     parser.add_argument("--random-state", type=int, default=42)
+    parser.add_argument(
+        "--exclude-feature",
+        action="append",
+        dest="excluded_features",
+        default=[],
+        help="Feature to exclude; may be provided more than once.",
+    )
     return parser
 
 

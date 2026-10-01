@@ -60,15 +60,19 @@ def _load_split(path: Path) -> pd.DataFrame:
     return frame
 
 
-def build_preprocessor() -> ColumnTransformer:
+def build_preprocessor(
+    *,
+    categorical_columns: list[str] = CATEGORICAL_COLUMNS,
+    numeric_columns: list[str] = NUMERIC_COLUMNS,
+) -> ColumnTransformer:
     """Build a leakage-safe transformer for the Adult feature schema."""
     return ColumnTransformer(
         transformers=[
-            ("numeric", "passthrough", NUMERIC_COLUMNS),
+            ("numeric", "passthrough", numeric_columns),
             (
                 "categorical",
                 OneHotEncoder(handle_unknown="ignore", sparse_output=True),
-                CATEGORICAL_COLUMNS,
+                categorical_columns,
             ),
         ],
         remainder="drop",
@@ -97,8 +101,9 @@ def train_baseline(
     test_input: str | Path = "data/processed/adult_test.csv",
     output_dir: str | Path = "data/models/baseline_xgboost",
     random_state: int = 42,
+    excluded_features: list[str] | None = None,
 ) -> TrainingMetadata:
-    """Fit the baseline model on the official fixed Adult train/test split."""
+    """Fit an XGBoost model on the official fixed Adult train/test split."""
     train_path = Path(train_input)
     test_path = Path(test_input)
     output_path = Path(output_dir)
@@ -106,10 +111,22 @@ def train_baseline(
 
     train = _load_split(train_path)
     test = _load_split(test_path)
-    x_train, y_train = train[FEATURE_COLUMNS], train[TARGET_COLUMN]
-    x_test, y_test = test[FEATURE_COLUMNS], test[TARGET_COLUMN]
+    excluded = list(dict.fromkeys(excluded_features or []))
+    unknown_excluded = sorted(set(excluded) - set(FEATURE_COLUMNS))
+    if unknown_excluded:
+        raise ValueError(f"Cannot exclude unknown features: {unknown_excluded}")
+    feature_columns = [column for column in FEATURE_COLUMNS if column not in excluded]
+    categorical_columns = [
+        column for column in CATEGORICAL_COLUMNS if column in feature_columns
+    ]
+    numeric_columns = [column for column in NUMERIC_COLUMNS if column in feature_columns]
+    x_train, y_train = train[feature_columns], train[TARGET_COLUMN]
+    x_test, y_test = test[feature_columns], test[TARGET_COLUMN]
 
-    preprocessor = build_preprocessor()
+    preprocessor = build_preprocessor(
+        categorical_columns=categorical_columns,
+        numeric_columns=numeric_columns,
+    )
     classifier = build_classifier(random_state)
     pipeline = Pipeline(
         steps=[
@@ -155,10 +172,10 @@ def train_baseline(
         train_input=str(train_path),
         test_input=str(test_path),
         output_dir=str(output_path),
-        feature_columns=FEATURE_COLUMNS,
+        feature_columns=feature_columns,
         target_column=TARGET_COLUMN,
-        categorical_columns=CATEGORICAL_COLUMNS,
-        numeric_columns=NUMERIC_COLUMNS,
+        categorical_columns=categorical_columns,
+        numeric_columns=numeric_columns,
         train_rows=len(train),
         test_rows=len(test),
         positive_train_rows=int(y_train.sum()),

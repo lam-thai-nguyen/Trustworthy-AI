@@ -43,8 +43,16 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    feature ablation to identify features such as `relationship`,
    `marital-status`, `occupation`, and `hours-per-week` that retain information
    about `sex`.
+
+   [log] Added `scripts/analyze_proxy_features.py` to aggregate TreeSHAP
+   contributions by original feature and export subgroup distribution and
+   sex-association evidence for the sex-excluded model.
 5. **Evaluate proxy removal** — Retrain after removing the strongest suspected
    proxies and measure the fairness, performance, and explainability trade-offs.
+
+   [log] The proxy analysis script now retrains individual and joint ablations
+   and exports `proxy_ablation_metrics.csv`, three manuscript-ready figures,
+   and an analysis summary under `data/models/proxy_feature_analysis/`.
 6. **Apply fairness mitigation** — Use Fairlearn `ExponentiatedGradient` with
    demographic-parity or equalized-odds constraints, then compare it with the
    unconstrained models.

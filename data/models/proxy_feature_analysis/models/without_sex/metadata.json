@@ -1,0 +1,59 @@
+{
+  "train_input": "data/processed/adult_train.csv",
+  "test_input": "data/processed/adult_test.csv",
+  "output_dir": "data/models/proxy_feature_analysis/models/without_sex",
+  "feature_columns": [
+    "age",
+    "fnlwgt",
+    "education-num",
+    "capital-gain",
+    "capital-loss",
+    "hours-per-week",
+    "workclass",
+    "education",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "native-country"
+  ],
+  "target_column": "income",
+  "categorical_columns": [
+    "workclass",
+    "education",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "native-country"
+  ],
+  "numeric_columns": [
+    "age",
+    "fnlwgt",
+    "education-num",
+    "capital-gain",
+    "capital-loss",
+    "hours-per-week"
+  ],
+  "train_rows": 32561,
+  "test_rows": 16281,
+  "positive_train_rows": 7841,
+  "positive_test_rows": 3846,
+  "transformed_feature_count": 106,
+  "random_state": 42,
+  "model_parameters": {
+    "objective": "binary:logistic",
+    "colsample_bytree": 1.0,
+    "eval_metric": "logloss",
+    "learning_rate": 0.1,
+    "max_depth": 6,
+    "n_estimators": 300,
+    "n_jobs": 1,
+    "random_state": 42,
+    "subsample": 1.0,
+    "tree_method": "hist"
+  },
+  "model_path": "data/models/proxy_feature_analysis/models/without_sex/model.json",
+  "preprocessor_path": "data/models/proxy_feature_analysis/models/without_sex/preprocessor.joblib",
+  "predictions_path": "data/models/proxy_feature_analysis/models/without_sex/test_predictions.csv"
+}

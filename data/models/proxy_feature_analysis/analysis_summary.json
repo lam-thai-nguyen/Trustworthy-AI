@@ -1,0 +1,15 @@
+{
+  "selected_proxy_features": [
+    "marital-status",
+    "occupation",
+    "hours-per-week"
+  ],
+  "candidate_rule": "top half by mean absolute TreeSHAP and top half by sex association",
+  "artifacts": {
+    "evidence_table": "data/models/proxy_feature_analysis/proxy_feature_evidence.csv",
+    "ablation_table": "data/models/proxy_feature_analysis/proxy_ablation_metrics.csv",
+    "shap_figure": "data/models/proxy_feature_analysis/proxy_feature_shap_importance.png",
+    "distribution_figure": "data/models/proxy_feature_analysis/proxy_feature_distributions.png",
+    "tradeoff_figure": "data/models/proxy_feature_analysis/proxy_ablation_tradeoff.png"
+  }
+}

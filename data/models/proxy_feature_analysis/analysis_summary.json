@@ -4,6 +4,13 @@
     "occupation",
     "hours-per-week"
   ],
+  "negative_control_features": [
+    "education-num",
+    "capital-gain",
+    "capital-loss",
+    "race"
+  ],
+  "negative_controls_marked_as_proxies": [],
   "candidate_rule": "top half by mean absolute TreeSHAP and top half by sex association",
   "artifacts": {
     "evidence_table": "data/models/proxy_feature_analysis/proxy_feature_evidence.csv",

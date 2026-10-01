@@ -34,6 +34,12 @@ DEFAULT_CANDIDATES = [
     "occupation",
     "hours-per-week",
 ]
+NEGATIVE_CONTROLS = [
+    "education-num",
+    "capital-gain",
+    "capital-loss",
+    "race",
+]
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -166,7 +172,15 @@ def _write_proxy_evidence(train: pd.DataFrame, model_dir: Path, output_dir: Path
         (evidence["model_reliance_rank"] <= len(evidence) / 2)
         & (evidence["association_rank"] <= len(evidence) / 2)
     )
+    evidence["screening_group"] = np.where(
+        evidence["feature"].isin(DEFAULT_CANDIDATES),
+        "human_motivated_candidate",
+        np.where(evidence["feature"].isin(NEGATIVE_CONTROLS), "negative_control", "other"),
+    )
     evidence.to_csv(output_dir / "proxy_feature_evidence.csv", index=False)
+    evidence[evidence["screening_group"] == "negative_control"].to_csv(
+        output_dir / "negative_control_evidence.csv", index=False
+    )
     return evidence
 
 
@@ -309,6 +323,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     _write_tradeoff_figure(results_frame, args.output_dir)
     summary = {
         "selected_proxy_features": selected,
+        "negative_control_features": NEGATIVE_CONTROLS,
+        "negative_controls_marked_as_proxies": evidence.loc[
+            evidence["feature"].isin(NEGATIVE_CONTROLS) & evidence["candidate_proxy"],
+            "feature",
+        ].tolist(),
         "candidate_rule": "top half by mean absolute TreeSHAP and top half by sex association",
         "artifacts": {
             "evidence_table": str(args.output_dir / "proxy_feature_evidence.csv"),

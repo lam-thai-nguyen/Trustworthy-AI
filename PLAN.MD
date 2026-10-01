@@ -53,6 +53,10 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] The proxy analysis script now retrains individual and joint ablations
    and exports `proxy_ablation_metrics.csv`, three manuscript-ready figures,
    and an analysis summary under `data/models/proxy_feature_analysis/`.
+
+   [log] Added pre-specified negative controls (`education-num`, `capital-gain`,
+   `capital-loss`, and `race`) to the proxy screen; none were marked as
+   candidate proxies, and their evidence is exported separately.
 6. **Apply fairness mitigation** — Use Fairlearn `ExponentiatedGradient` with
    demographic-parity or equalized-odds constraints, then compare it with the
    unconstrained models.

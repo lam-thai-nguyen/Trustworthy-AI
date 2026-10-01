@@ -265,6 +265,14 @@ def _write_shap_figure(evidence: pd.DataFrame, output_dir: Path) -> None:
 
 def _write_tradeoff_figure(results: pd.DataFrame, output_dir: Path) -> None:
     figure, axis = plt.subplots(figsize=(8, 6))
+    labels = {
+        "with_sex": "With sex",
+        "without_sex": "Without sex",
+        "without_marital-status": "− marital-status",
+        "without_occupation": "− occupation",
+        "without_hours-per-week": "− hours/week",
+        "without_selected_proxies": "− selected proxies",
+    }
     axis.scatter(
         results["balanced_accuracy"],
         results["demographic_parity_difference"],
@@ -272,8 +280,14 @@ def _write_tradeoff_figure(results: pd.DataFrame, output_dir: Path) -> None:
         color="tab:blue",
     )
     for _, row in results.iterrows():
-        axis.annotate(row["model"], (row["balanced_accuracy"], row["demographic_parity_difference"]),
-                      xytext=(4, 4), textcoords="offset points", fontsize=8)
+        axis.annotate(
+            labels.get(row["model"], row["model"]),
+            (row["balanced_accuracy"], row["demographic_parity_difference"]),
+            xytext=(4, 4),
+            textcoords="offset points",
+            fontsize=11,
+            bbox={"facecolor": "white", "alpha": 0.8, "edgecolor": "none", "pad": 1.5},
+        )
     axis.set_xlabel("Balanced accuracy")
     axis.set_ylabel("Demographic-parity difference")
     axis.set_title("Performance–fairness trade-off across proxy ablations")

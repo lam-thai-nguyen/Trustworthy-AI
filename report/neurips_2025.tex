@@ -438,6 +438,45 @@ necessarily an unbiased or fair model. Zero is not a complete definition of
 fairness, particularly given the dataset's binary \texttt{sex} representation
 and the limitations of any single fairness criterion.
 
+\paragraph{Proxy identification.}
+For proxy screening, we report the feature--sex association
+\(V_{\mathrm{sex}}\). For a categorical feature with contingency-table
+chi-square statistic \(\chi^2\), sample size \(n\), and table dimensions
+\(r\times c\), its uncorrected form is
+\[
+  V_{\mathrm{sex}}
+  = \sqrt{\frac{\chi^2}{n\min(r-1,c-1)}}.
+\]
+We use the bias-corrected Cramér's \(V\) implementation for categorical
+features. For numeric features, we use the absolute Spearman correlation
+\[
+  V_{\mathrm{sex}}=\left|\rho_{\mathrm{Spearman}}(X,A)\right|,
+\]
+where \(A\) is the binary indicator of the observed \texttt{sex} group. Both
+versions range from \(0\) to \(1\), with larger values indicating stronger
+univariate association. This association does not establish causation or
+determine whether the model relies on the feature.
+
+To quantify model reliance, we use TreeSHAP
+\citep{lundberg2017unified}. For a model \(f\) and input \(x\), the
+TreeSHAP decomposition is
+\[
+  f(x)=\phi_0+\sum_{j=1}^{p}\phi_j(x),
+\]
+where \(\phi_0\) is the baseline output and
+\[
+  \phi_j(x)=
+  \sum_{S\subseteq\{1,\ldots,p\}\setminus\{j\}}
+  \frac{|S|!(p-|S|-1)!}{p!}
+  \left[f_{S\cup\{j\}}(x)-f_S(x)\right]
+\]
+is the Shapley contribution of feature \(j\). We summarize model reliance
+using the mean absolute contribution,
+\(\overline{|\mathrm{SHAP}_j|}=n^{-1}\sum_i|\phi_j(x_i)|\), aggregating
+one-hot encoded contributions to the original feature. A candidate proxy is
+therefore a feature that is both used by the model and associated with the
+observed \texttt{sex} groups; neither diagnostic alone is sufficient.
+
 
 \section{Results}\label{sec:result}
 
@@ -533,7 +572,7 @@ suggesting a large effect that is not present in the measurements.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.72\linewidth]{images/group_positive_prediction_rates.png}
+  \includegraphics[width=0.6\linewidth]{images/group_positive_prediction_rates.png}
   \caption{Positive prediction rates by observed \texttt{sex} group for
   XGBoost models trained with and without \texttt{sex}. Removing the feature
   produces only a small change in either group rate, and the male--female
@@ -553,6 +592,139 @@ nor does it establish a causal explanation; those questions are addressed by
 the proxy-feature identification and removal analyses that follow.
 
 \subsection{Proxy-Feature Identification and Removal}
+
+\subsubsection{Proxy identification}
+Using the
+sex-excluded model, we computed mean absolute TreeSHAP contribution,
+\(\overline{|\mathrm{SHAP}|}\), after aggregating one-hot contributions to the
+original feature. This measures model reliance. We also computed
+\(V_{\mathrm{sex}}\), defined in the evaluation metrics section, to measure
+feature association with the observed \texttt{sex} groups. Larger values
+indicate stronger model reliance or stronger univariate association,
+respectively.
+
+These are screening diagnostics, not causal tests. We flagged a feature as a
+candidate proxy when it ranked in the upper half for both model reliance and
+sex association. Every available feature was tested; no feature was assigned
+to a proxy or non-proxy group in advance. Thus, an important predictive
+feature with weak sex association is not identified as a proxy, while a
+feature strongly associated with \texttt{sex} but weakly used by the model is
+not a high-priority model proxy.
+
+\begin{table}[t]
+  \centering
+  \caption{Diagnostics for proxy screening in the sex-excluded model. Features
+  are ordered by decreasing mean absolute TreeSHAP contribution. A downward
+  arrow indicates this ordering; \(V_{\mathrm{sex}}\) is defined in
+  Section~\ref{subsec:Metrics}.}
+  \label{tab:proxy-evidence}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrc}
+    \toprule
+    Feature & \(\overline{|\mathrm{SHAP}|}\downarrow\) &
+    \(V_{\mathrm{sex}}\) & Proxy? \\
+    \midrule
+    marital-status & 1.276 & 0.462 & Yes \\
+    age & 0.750 & 0.100 & No \\
+    occupation & 0.612 & 0.424 & Yes \\
+    capital-gain & 0.592 & 0.067 & No \\
+    education-num & 0.509 & 0.006 & No \\
+    hours-per-week & 0.394 & 0.265 & Yes \\
+    relationship & 0.292 & 0.649 & No \\
+    capital-loss & 0.183 & 0.042 & No \\
+    workclass & 0.145 & 0.153 & No \\
+    fnlwgt & 0.138 & 0.025 & No \\
+    race & 0.073 & 0.118 & No \\
+    native-country & 0.073 & 0.057 & No \\
+    education & 0.057 & 0.093 & No \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:proxy-evidence} identifies \texttt{marital-status},
+\texttt{occupation}, and \texttt{hours-per-week} as the features satisfying
+both ranking requirements. It also illustrates why both diagnostics are
+needed: \texttt{relationship} has the strongest sex association
+(\(V_{\mathrm{sex}}=0.649\)) but relatively low model reliance, whereas
+\texttt{capital-gain} has high model reliance but weak sex association
+(\(V_{\mathrm{sex}}=0.067\)). The result is a screening conclusion, not proof
+that any feature is causally a proxy.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\linewidth]{images/proxy_feature_shap_importance.png}
+  \caption{Mean absolute TreeSHAP contributions for the sex-excluded XGBoost
+  model, aggregated to original features. Orange bars indicate candidate
+  proxies under the joint screening rule; blue bars are not selected.}
+  \label{fig:proxy-shap}
+\end{figure}
+
+Figure~\ref{fig:proxy-shap} provides a visual summary of model reliance.
+\texttt{marital-status} is the most influential feature, while
+\texttt{age} and \texttt{capital-gain} are also influential but are not
+selected because their sex-association values in Table~\ref{tab:proxy-evidence}
+are smaller.
+
+\subsubsection{Proxy removal}
+We next explain the intervention and its interpretation. We retrained models
+after removing each selected feature individually and after removing all three
+together. The \texttt{with-sex} and \texttt{without-sex} models provide the
+Step 2 and Step 3 references. Lower DPD and EOD indicate smaller observed
+disparities, while higher Acc, BAcc, Pr, Rc, and F1 indicate better predictive
+performance. Table~\ref{tab:proxy-ablation} reports the held-out comparison.
+
+\begin{table}[t]
+  \centering
+  \caption{Predictive and fairness outcomes after controlled proxy ablation
+  on the fixed held-out test split (\(n=16{,}281\)).}
+  \label{tab:proxy-ablation}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lcccccccc}
+    \toprule
+    Model & Acc & BAcc & Pr & Rc & F1 & DPD & EOD \\
+    \midrule
+    With \texttt{sex} & 0.8746 & 0.7990 & 0.7786 & 0.6557 & 0.7119 & 0.1710 & 0.0604 \\
+    Without \texttt{sex} & 0.8748 & 0.7996 & 0.7783 & 0.6570 & 0.7125 & 0.1662 & 0.0575 \\
+    Without \texttt{marital-status} & 0.8736 & 0.7975 & 0.7763 & 0.6531 & 0.7094 & 0.1661 & 0.0580 \\
+    Without \texttt{occupation} & 0.8668 & 0.7858 & 0.7631 & 0.6323 & 0.6916 & 0.1638 & 0.0607 \\
+    Without \texttt{hours-per-week} & 0.8730 & 0.7943 & 0.7792 & 0.6451 & 0.7058 & 0.1657 & 0.0569 \\
+    Without selected proxies & 0.8690 & 0.7844 & 0.7775 & 0.6240 & 0.6923 & 0.1576 & 0.0528 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+The individual ablations in Table~\ref{tab:proxy-ablation} are modest and
+non-uniform. Removing \texttt{marital-status} barely changes DPD or EOD;
+removing \texttt{hours-per-week} slightly lowers both; and removing
+\texttt{occupation} causes the largest individual performance loss without a
+clearer fairness improvement. No single feature accounts for the residual
+disparity on its own.
+
+The joint removal is the clearest result. Relative to the sex-excluded model,
+DPD decreases from 0.1662 to 0.1576 and EOD from 0.0575 to 0.0528, while BAcc
+decreases from 0.7996 to 0.7844 and F1 from 0.7125 to 0.6923. The intervention
+therefore reduces, but does not eliminate, the disparity that remains after
+removing \texttt{sex}, and it does so at a measurable performance cost.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\linewidth]{images/proxy_ablation_tradeoff.png}
+  \caption{Balanced accuracy versus DPD for the reference and proxy-ablated
+  models. Each point is evaluated on the same held-out test split. Lower DPD
+  indicates smaller observed disparity; lower BAcc represents a predictive
+  performance cost.}
+  \label{fig:proxy-tradeoff}
+\end{figure}
+
+Figure~\ref{fig:proxy-tradeoff} makes this result concrete: the sex-excluded
+model is close to the model using \texttt{sex}, while joint proxy removal moves
+toward lower DPD and lower BAcc. The analysis therefore supports a limited
+conclusion: removing \texttt{sex} is insufficient, and removing selected
+candidate proxies improves the measured disparity more than removing
+\texttt{sex} alone, but proxy deletion is neither cost-free nor complete.
+The candidates are empirical associations rather than proven causal
+mechanisms; interactions and the binary \texttt{sex} representation remain
+limitations.
 
 \subsection{Fairness-Constrained Retraining}
 

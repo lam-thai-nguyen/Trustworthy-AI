@@ -350,48 +350,79 @@ dataset representation.
 \end{figure}
 
 \subsection{Evaluation metrics}\label{subsec:Metrics}
-We evaluate each model on the held-out test split using both predictive
-performance and group fairness metrics. Predictive performance is summarized
-by accuracy, balanced accuracy, precision, recall, and F1 score. Accuracy is
-the fraction of correct predictions; balanced accuracy is the mean recall
-across the two income classes; precision is the fraction of predicted
-above-\$50{,}000 cases that are correct; recall is the fraction of actual
-above-\$50{,}000 cases that are identified; and F1 is the harmonic mean of
-precision and recall. Reporting both accuracy and balanced accuracy is useful
-because the target is not evenly distributed.
+We evaluate every model on the same held-out test split using predictive
+performance and group fairness metrics. Let \(Y\in\{0,1\}\) denote the true
+income label, \(\widehat{Y}\) the binary prediction, and
+\(A=\texttt{sex}\) the sensitive attribute. The observed groups are indexed
+by \(g\in\mathcal{G}\), and all metrics use the same fixed decision rule.
 
-Fairness metrics are computed across the observed binary \texttt{sex}
-categories, using the same fixed prediction rule for every model. The
-demographic-parity difference is defined as
+\paragraph{Predictive performance.}
+We report accuracy (Acc), balanced accuracy (BAcc), precision (Pr), recall
+(Rc), and F1. Accuracy is the fraction of all test records classified
+correctly. Because the above-\$50{,}000 class is less frequent, we also report
+balanced accuracy:
 \[
-  \max_{g \in \mathcal{G}} P(\widehat{Y}=1 \mid A=g)
-  - \min_{g \in \mathcal{G}} P(\widehat{Y}=1 \mid A=g),
+  \mathrm{BAcc}
+  = \frac{\mathrm{Sensitivity}+\mathrm{Specificity}}{2}
+  = \frac{1}{2}\left[
+    \frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FN}}
+    + \frac{\mathrm{TN}}{\mathrm{TN}+\mathrm{FP}}
+  \right],
 \]
-where \(A\) is \texttt{sex} and \(\mathcal{G}\) is the set of observed group
-labels. It measures disparity in positive prediction rates, without
-conditioning on the true income label. The equalized-odds difference is
-reported as the larger of the across-group differences in true-positive rates
-and false-positive rates:
-\[
-  \max\left\{
-    \max_g \mathrm{TPR}_g-\min_g \mathrm{TPR}_g,\,
-    \max_g \mathrm{FPR}_g-\min_g \mathrm{FPR}_g
-  \right\}.
-\]
-Thus, it measures disparity in both types of conditional classification
-outcomes. Lower values indicate smaller observed group differences for both
-fairness measures, while zero does not establish that a system is fair in
-all relevant senses.
+where sensitivity is the true-positive rate for the above-\$50{,}000 class
+and specificity is the true-negative rate for the at-or-below-\$50{,}000
+class. BAcc gives equal weight to the two income classes and is therefore
+more informative than Acc when class frequencies are unequal. Precision is
+the fraction of positive predictions that are correct, Rc is the fraction of
+actual above-\$50{,}000 records identified, and F1 is their harmonic mean.
+Together, these measures distinguish overall correctness from the model's
+ability to identify the minority income class and the reliability of its
+positive predictions.
 
-The comparison table will include the baseline XGBoost model with
-\texttt{sex}, a model with \texttt{sex} removed, models with suspected proxy
-features ablated, and Fairlearn ExponentiatedGradient models constrained by
-demographic parity or equalized odds. The same predictive and fairness
-metrics will be reported for each variant so that feature removal, proxy
-removal, and algorithmic mitigation can be compared without collapsing their
-different objectives into a single score. We do not perform robustness or
-threshold analyses; the reported values correspond to the prespecified
-evaluation procedure and fixed prediction rule.
+\paragraph{Group fairness.}
+We report demographic-parity difference (DPD) and equalized-odds difference
+(EOD) across the observed \texttt{sex} groups. DPD compares positive
+prediction rates without conditioning on the true income label:
+\[
+  \mathrm{DPD}
+  = \max_{g\in\mathcal{G}} P(\widehat{Y}=1\mid A=g)
+    - \min_{g\in\mathcal{G}} P(\widehat{Y}=1\mid A=g).
+\]
+This metric is relevant to the audit because it measures whether the model
+assigns the positive income classification at different rates across groups,
+which is the disparity that may remain after removing \texttt{sex} from the
+features. It does not, however, account for differences in the observed
+target distribution. With the difference defined over probabilities, DPD
+has range \([0,1]\): \(0\) indicates identical positive prediction rates,
+whereas larger values indicate greater disparity, with \(1\) being the
+maximum possible difference.
+
+EOD measures disparities conditional on the true label:
+\[
+  \mathrm{EOD}
+  = \max\left\{
+      \max_{g\in\mathcal{G}}\mathrm{TPR}_g
+        - \min_{g\in\mathcal{G}}\mathrm{TPR}_g,\,
+      \max_{g\in\mathcal{G}}\mathrm{FPR}_g
+        - \min_{g\in\mathcal{G}}\mathrm{FPR}_g
+    \right\},
+\]
+where \(\mathrm{TPR}_g=P(\widehat{Y}=1\mid Y=1,A=g)\) is the group-specific
+true-positive rate and
+\(\mathrm{FPR}_g=P(\widehat{Y}=1\mid Y=0,A=g)\) is the false-positive rate.
+EOD is suitable here because it checks whether groups with the same observed
+income label experience different opportunities for correct positive
+classification or different rates of erroneous positive classification.
+DPD and EOD therefore capture complementary notions: DPD measures disparity
+in selection, whereas EOD measures disparity in conditional error outcomes.
+Because both are differences of probabilities, EOD also has range
+\([0,1]\). An EOD of \(0\) indicates identical TPR and FPR across the
+observed groups, whereas larger values indicate greater disparity in at least
+one of these rates, with \(1\) being the maximum possible difference. Thus,
+lower DPD and EOD values indicate less observed group disparity, not
+necessarily an unbiased or fair model. Zero is not a complete definition of
+fairness, particularly given the dataset's binary \texttt{sex} representation
+and the limitations of any single fairness criterion.
 
 
 \section{Results}\label{sec:result}

@@ -56,6 +56,13 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] Expanded the dataset section with cited explanations of the summary table, income/sex
    figures, and cautious relationship-based proxy motivation.
 
+   [log] Rewrote the evaluation metrics section with explicit BAcc, DPD, and EOD formulas,
+   notation for Acc, Pr, Rc, F1, sensitivity, specificity, TPR, FPR, and task-specific
+   metric rationale.
+
+   [log] Added the [0,1] value ranges and interpretation of lower versus higher DPD and EOD
+   values.
+
 ## Scope and limitations
 
 Do not include robustness or threshold analysis. Discuss the dataset's age,

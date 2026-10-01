@@ -24,6 +24,9 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] Run `python3 scripts/eda.py` to create exploratory summary tables and visualizations in
    `data/eda/`.
 
+   [log] Updated EDA outputs with a paper-oriented dataset summary table and relationship-based
+   above-$50K rate figure alongside the income distribution and sex-group rate figure.
+
    [log] Added `scripts/train_xgboost.py` and `trustworthy_ai.model` to fit the baseline XGBoost model with training-only preprocessing on the fixed official split; artifacts and test predictions are written to `data/models/baseline_xgboost/`.
 2. **Measure baseline fairness** — Report accuracy, balanced accuracy, precision,
    recall, F1, demographic-parity difference, and equalized-odds difference
@@ -49,6 +52,9 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
 
    [log] Drafted the proposed audit method in `report/neurips_2025.tex` and added
    the `Overview of our proposed method` SVG figure at `report/images/overview_proposed_method.svg`.
+
+   [log] Expanded the dataset section with cited explanations of the summary table, income/sex
+   figures, and cautious relationship-based proxy motivation.
 
 ## Scope and limitations
 

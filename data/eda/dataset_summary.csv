@@ -1,0 +1,13 @@
+Statistic,Value
+Total records,48842
+Features,14
+Numeric features,6
+Categorical features,8
+At or below $50K,37155
+Above $50K,11687
+Above-$50K rate,23.93%
+Male records,32650
+Female records,16192
+Male above-$50K rate,30.38%
+Female above-$50K rate,10.93%
+Missing categorical values,6465

@@ -40,15 +40,17 @@ def _save_figure(fig: plt.Figure, output_dir: Path, name: str) -> None:
 
 
 def _plot_income_distribution(frame: pd.DataFrame, output_dir: Path) -> None:
+    """Create the figure titled "Income Distribution"."""
     counts = frame["income_label"].value_counts().reindex(INCOME_ORDER)
     fig, ax = plt.subplots(figsize=(6, 4))
     bars = ax.bar(counts.index, counts.values, color=[COLORS[label] for label in counts.index])
     ax.bar_label(bars, fmt="{:,.0f}")
-    ax.set(title="Income target distribution", xlabel="Annual income", ylabel="Rows")
+    ax.set(title="Income Distribution", xlabel="Annual income", ylabel="Rows")
     _save_figure(fig, output_dir, "income_distribution.png")
 
 
 def _plot_income_by_sex(frame: pd.DataFrame, output_dir: Path) -> pd.DataFrame:
+    """Create the figure titled "Above-$50K Rates Across Sex Groups"."""
     rates = (
         frame.groupby("sex", observed=True)["income"]
         .agg(rows="size", above_50k="mean")
@@ -62,13 +64,68 @@ def _plot_income_by_sex(frame: pd.DataFrame, output_dir: Path) -> pd.DataFrame:
     bars = ax.barh(plot_data.index, plot_data.values, color="#59A14F")
     ax.bar_label(bars, fmt="%.1f%%", padding=3)
     ax.set(
-        title="Share above $50K by sex",
+        title="Above-$50K Rates Across Sex Groups",
         xlabel="Rows above $50K (%)",
         ylabel="Sex",
         xlim=(0, max(100, plot_data.max() * 1.2)),
     )
     _save_figure(fig, output_dir, "income_rate_by_sex.png")
     return rates
+
+
+def _plot_income_by_relationship(frame: pd.DataFrame, output_dir: Path) -> pd.DataFrame:
+    """Create the figure titled "Above-$50K Income Rates Across Relationship Categories"."""
+    rates = (
+        frame.groupby("relationship", observed=True)["income"]
+        .agg(rows="size", above_50k="mean")
+        .sort_values("above_50k", ascending=True)
+    )
+    rates["above_50k_percent"] = rates["above_50k"] * 100
+    rates.reset_index().to_csv(output_dir / "income_rate_by_relationship.csv", index=False)
+
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    bars = ax.barh(
+        rates.index,
+        rates["above_50k_percent"],
+        color="#E45756",
+    )
+    ax.bar_label(bars, fmt="%.1f%%", padding=3)
+    ax.set(
+        title="Above-$50K Income Rates Across Relationship Categories",
+        xlabel="Rows above $50K (%)",
+        ylabel="Relationship",
+        xlim=(0, max(100, rates["above_50k_percent"].max() * 1.2)),
+    )
+    _save_figure(fig, output_dir, "income_rate_by_relationship.png")
+    return rates
+
+
+def _write_dataset_summary(frame: pd.DataFrame, output_dir: Path) -> None:
+    """Create the table titled "Summary Statistics of the UCI Adult Income Dataset"."""
+    target_counts = frame["income_label"].value_counts().reindex(INCOME_ORDER)
+    sex_summary = (
+        frame.groupby("sex", observed=True)["income"]
+        .agg(rows="size", above_50k="mean")
+    )
+    missing_values = int(frame.eq("Missing").sum().sum())
+    summary = pd.DataFrame(
+        [
+            ("Total records", len(frame)),
+            ("Features", frame.shape[1] - 2),
+            ("Numeric features", 6),
+            ("Categorical features", 8),
+            ("At or below $50K", int(target_counts["<=50K"])),
+            ("Above $50K", int(target_counts[">50K"])),
+            ("Above-$50K rate", f"{frame['income'].mean() * 100:.2f}%"),
+            ("Male records", int(sex_summary.loc["Male", "rows"])),
+            ("Female records", int(sex_summary.loc["Female", "rows"])),
+            ("Male above-$50K rate", f"{sex_summary.loc['Male', 'above_50k'] * 100:.2f}%"),
+            ("Female above-$50K rate", f"{sex_summary.loc['Female', 'above_50k'] * 100:.2f}%"),
+            ("Missing categorical values", missing_values),
+        ],
+        columns=["Statistic", "Value"],
+    )
+    summary.to_csv(output_dir / "dataset_summary.csv", index=False)
 
 
 def _plot_age_by_income(frame: pd.DataFrame, output_dir: Path) -> None:
@@ -140,6 +197,7 @@ def run_eda(
 
     _plot_income_distribution(frame, output_dir)
     rates = _plot_income_by_sex(frame, output_dir)
+    _plot_income_by_relationship(frame, output_dir)
     _plot_age_by_income(frame, output_dir)
     _plot_education_by_income(frame, output_dir)
     _plot_missing_values(frame, output_dir)
@@ -148,6 +206,7 @@ def run_eda(
     frame.drop(columns="income_label").describe(include="all").transpose().to_csv(
         output_dir / "descriptive_statistics.csv"
     )
+    _write_dataset_summary(frame, output_dir)
     summary = {
         "input": str(input_path),
         "rows": len(frame),

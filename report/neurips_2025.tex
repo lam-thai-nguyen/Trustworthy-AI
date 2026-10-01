@@ -267,71 +267,86 @@ for the baseline, sex-excluded, proxy-ablated, and constrained models. The
 specific evaluation measures and their definitions are described in~\ref{subsec:Metrics}.
 
 \subsection{Dataset}\label{subsec:Data}
-We use the UCI Adult Income dataset \citep{dua2019uci}, comprising 48{,}842
-records and 14 features. The binary target is whether annual income exceeds
-\$50{,}000, and \texttt{sex} is retained as a sensitive attribute for
-evaluation. We preserve the dataset's supplied training and test files rather
-than drawing a new split.
-\paragraph{ETL}
-The ETL implementation reads \texttt{adult.data} and \texttt{adult.test}
-from \texttt{data/adult}. It removes surrounding whitespace, removes the
-period appended to labels in the test file, validates the target labels and
-numeric fields, and converts the target to 0/1. The documented \texttt{?}
-values in categorical columns are mapped to an explicit \texttt{Missing}
-category rather than being silently dropped. This affected 6{,}465 values:
-2{,}799 in \texttt{workclass}, 2{,}809 in \texttt{occupation}, and 857 in
-\texttt{native-country}. The cleaned training and test splits, combined
-dataset, and ETL metadata are written to \texttt{data/processed}.
-\paragraph{EDA}
-The exploratory analysis is descriptive and is performed on the cleaned
-combined dataset before model fitting. It reports descriptive statistics and
-creates visualizations for the target distribution, age by income class,
-income rates by education, numeric feature distributions, and documented
-missing-value counts. We also compare the target rate across the two observed
-\texttt{sex} categories as an initial descriptive fairness diagnostic; this
-comparison is not a model fairness result. In the cleaned data, 11{,}687 of
-48{,}842 records are above \$50{,}000. The corresponding observed rates are
-30.38\% for males (9{,}918/32{,}650) and 10.93\% for females
-(1{,}769/16{,}192).
+We use the UCI Adult Income dataset \citep{dua2019uci}, preserving its
+official training and test partitions. The dataset contains demographic,
+educational, occupational, and work-related variables, with a binary target
+indicating whether annual income exceeds \$50{,}000. The sensitive attribute
+\texttt{sex} is retained for subgroup evaluation even when it is excluded
+from model features. The main descriptive
+statistics are summarized in Table~\ref{tab:dataset-summary}. The table
+records the dataset size, the official partition sizes, the six numeric and
+eight categorical features, the imbalanced target distribution, the observed
+\texttt{sex}-group sizes, and the number of categorical values encoded as
+\texttt{Missing}. Thus, it gives the scale and composition of the data used
+throughout the audit without presenting any model outcome.
+
+\begin{table}[t]
+  \centering
+  \caption{Summary Statistics of the UCI Adult Income Dataset.}
+  \label{tab:dataset-summary}
+  \begin{tabular}{ll}
+    \toprule
+    Statistic & Value \\
+    \midrule
+    Total records & 48{,}842 \\
+    Training/test records & 32{,}561 / 16{,}281 \\
+    Features & 14 (6 numeric, 8 categorical) \\
+    At or below \$50{,}000 & 37{,}155 (76.07\%) \\
+    Above \$50{,}000 & 11{,}687 (23.93\%) \\
+    Male/female records & 32{,}650 / 16{,}192 \\
+    Male above-\$50K rate & 30.38\% \\
+    Female above-\$50K rate & 10.93\% \\
+    Missing categorical values & 6{,}465 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The target distribution and the observed group-specific rates are shown in
+Figure~\ref{fig:eda-income}. The left panel shows that 11{,}687 of the
+48{,}842 records (23.93\%) are above \$50{,}000, so overall accuracy alone
+could obscure performance on the less frequent class. The right panel shows
+that the above-\$50K rate is 30.38\% for males and 10.93\% for females. This
+is an observed association in the dataset, not a model prediction or a
+fairness result; it motivates retaining \texttt{sex} for evaluation even
+when it is removed from the model inputs.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.48\linewidth]{images/income_distribution.png}
   \includegraphics[width=0.48\linewidth]{images/income_rate_by_sex.png}
-  \caption{EDA of the cleaned Adult data. Left: target distribution. Right:
-  observed proportion above \$50{,}000 by \texttt{sex}. These are descriptive
-  dataset summaries, not predictions from a trained model.}
+  \caption{Income Distribution and Above-\$50K Rates Across Sex Groups. The
+  panels summarize the cleaned dataset: the target distribution is shown on
+  the left, and the observed proportion above \$50{,}000 across the two
+  observed \texttt{sex} categories is shown on the right. These are
+  descriptive dataset statistics, not model predictions or fairness results.}
   \label{fig:eda-income}
 \end{figure}
 
-\begin{table}[t]
-  \centering
-  \caption{Experimental data and preprocessing setup.}
-  \label{tab:experimental-setup}
-  \begin{tabular}{ll}
-    \toprule
-    Item & Specification \\
-    \midrule
-    Dataset & UCI Adult Income \\
-    Training/test rows & 32{,}561 / 16{,}281 \\
-    Features & 14 (6 numeric, 8 categorical) \\
-    Target & Income above \$50{,}000 (binary) \\
-    Sensitive attribute & \texttt{sex}, retained for evaluation \\
-    Missing categorical values & 6{,}465 mapped to \texttt{Missing} \\
-    Encoder & Training-fitted one-hot encoding \\
-    Classifier & XGBoost, 300 trees, depth 6, learning rate 0.1 \\
-    Decision rule & Positive if predicted probability $\geq 0.5$ \\
-    Random seed & 42 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+The \texttt{relationship} feature is examined descriptively in
+Figure~\ref{fig:eda-relationship} because it represents family and household
+structure and is one of the remaining variables that could retain
+group-related information. The observed above-\$50K rates range from 1.46\%
+for \texttt{Own-child} to 46.89\% for \texttt{Wife}. These differences show
+that the feature has substantial structure relevant to the target, but they
+do not establish that it is a proxy for \texttt{sex}, identify a causal
+mechanism, or show that a trained model relies on it. We therefore use this
+plot as information and as a reference for the later SHAP, subgroup, and
+ablation analyses. Together, the explicit sensitive attribute, the observed
+target disparity, and the presence of potentially related family and
+work-related features make Adult suitable for a controlled proxy-feature
+audit, while the conclusions remain limited to the observed groups and
+dataset representation.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.72\linewidth]{images/income_rate_by_education.png}
-  \caption{Observed proportion above \$50{,}000 by education category in the
-  cleaned dataset.}
-  \label{fig:eda-education}
+  \includegraphics[width=0.72\linewidth]{images/income_rate_by_relationship.png}
+  \caption{Above-\$50K Income Rates Across Relationship Categories. The plot
+  reports observed target rates for each \texttt{relationship} category in
+  the cleaned dataset. It is included as descriptive information and as a
+  reference for a feature suspected of retaining group-related information;
+  it does not by itself establish that \texttt{relationship} is a proxy for
+  \texttt{sex} or that the observed differences are caused by the feature.}
+  \label{fig:eda-relationship}
 \end{figure}
 
 \subsection{Evaluation metrics}\label{subsec:Metrics}

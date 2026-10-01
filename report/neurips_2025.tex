@@ -290,6 +290,7 @@ throughout the audit without presenting any model outcome.
 
 \begin{table}[t]
   \centering
+  \footnotesize
   \caption{Summary Statistics of the UCI Adult Income Dataset.}
   \label{tab:dataset-summary}
   \begin{tabular}{ll}
@@ -320,8 +321,8 @@ when it is removed from the model inputs.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.48\linewidth]{images/income_distribution.png}
-  \includegraphics[width=0.48\linewidth]{images/income_rate_by_sex.png}
+  \includegraphics[width=0.45\linewidth]{images/income_distribution.png}
+  \includegraphics[width=0.45\linewidth]{images/income_rate_by_sex.png}
   \caption{Income Distribution and Above-\$50K Rates Across Sex Groups. The
   panels summarize the cleaned dataset: the target distribution is shown on
   the left, and the observed proportion above \$50{,}000 across the two
@@ -347,7 +348,7 @@ dataset representation.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.72\linewidth]{images/income_rate_by_relationship.png}
+  \includegraphics[width=0.6\linewidth]{images/income_rate_by_relationship.png}
   \caption{Above-\$50K Income Rates Across Relationship Categories. The plot
   reports observed target rates for each \texttt{relationship} category in
   the cleaned dataset. It is included as descriptive information and as a
@@ -496,6 +497,7 @@ test split.
 
 \begin{table}[t]
   \centering
+  \footnotesize
   \caption{Predictive performance of XGBoost models trained with and without
   the \texttt{sex} feature on the fixed held-out test split
   (\(n=16{,}281\)). Difference is computed as without \texttt{sex} minus with
@@ -533,7 +535,7 @@ account for those differences.
   sizes are \(n=5{,}421\) and \(n=10{,}860\), respectively. DPD and EOD are
   reported once per model because they summarize the two groups.}
   \label{tab:sex-feature-fairness}
-  \resizebox{\linewidth}{!}{%
+  \footnotesize
   \begin{tabular}{llcccccccc}
     \toprule
     Model & Group & SR & TPR & FPR & DPD & TPR diff. & FPR diff. & EOD \\
@@ -544,7 +546,7 @@ account for those differences.
     Without \texttt{sex} & Female & 0.0885 & 0.6271 & 0.0228 & 0.1662 & 0.0354 & 0.0575 & 0.0575 \\
     Without \texttt{sex} & Male   & 0.2548 & 0.6625 & 0.0802 & -- & -- & -- & -- \\
     \bottomrule
-  \end{tabular}}
+  \end{tabular}
 \end{table}
 
 Figure~\ref{fig:sex-feature-metrics} presents the principal performance and
@@ -613,13 +615,14 @@ not a high-priority model proxy.
 
 \begin{table}[t]
   \centering
+  \footnotesize
   \caption{Diagnostics for proxy screening in the sex-excluded model. Features
   are ordered by decreasing mean absolute TreeSHAP contribution. A downward
   arrow indicates this ordering; \(V_{\mathrm{sex}}\) is defined in
   Section~\ref{subsec:Metrics}.}
   \label{tab:proxy-evidence}
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrc}
+  \begin{tabular}{lccc}
     \toprule
     Feature & \(\overline{|\mathrm{SHAP}|}\downarrow\) &
     \(V_{\mathrm{sex}}\) & Proxy? \\
@@ -675,10 +678,10 @@ performance. Table~\ref{tab:proxy-ablation} reports the held-out comparison.
 
 \begin{table}[t]
   \centering
+  \footnotesize
   \caption{Predictive and fairness outcomes after controlled proxy ablation
   on the fixed held-out test split (\(n=16{,}281\)).}
   \label{tab:proxy-ablation}
-  \resizebox{\linewidth}{!}{%
   \begin{tabular}{lcccccccc}
     \toprule
     Model & Acc & BAcc & Pr & Rc & F1 & DPD & EOD \\
@@ -690,7 +693,7 @@ performance. Table~\ref{tab:proxy-ablation} reports the held-out comparison.
     Without \texttt{hours-per-week} & 0.8730 & 0.7943 & 0.7792 & 0.6451 & 0.7058 & 0.1657 & 0.0569 \\
     Without selected proxies & 0.8690 & 0.7844 & 0.7775 & 0.6240 & 0.6923 & 0.1576 & 0.0528 \\
     \bottomrule
-  \end{tabular}}
+  \end{tabular}
 \end{table}
 
 The individual ablations in Table~\ref{tab:proxy-ablation} are modest and

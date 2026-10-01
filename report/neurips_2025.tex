@@ -51,65 +51,56 @@ SHAP-Based Analysis of Proxy Features}
 
 \section{Introduction}\label{sec:introduction}
 
-Machine-learning systems are increasingly used to support decisions that affect
-people's opportunities, including hiring, credit, access to housing, and
-public services \citep{barocas2019fairness,corbett2017algorithmic,mehrabi2021survey}.
-In the trustworthy-AI literature, models are often shown to be accurate on
-average while still producing unequal error rates or prediction rates across
-demographic groups, particularly when historical inequities are encoded in the
-training data. These findings motivate fairness auditing as a requirement for
-disclosing how a model distributes outcomes and where prediction quality varies
-across groups.
+Machine-learning models can produce unequal outcomes across demographic groups
+even when their average predictive performance is high
+\citep{mehrabi2021survey}. A common response is to remove a sensitive
+attribute, such as \texttt{sex}, from the model inputs. This intervention is
+simple and often presented as a way to prevent discrimination. However, other
+features may still contain information associated with the protected attribute
+and allow the model to reproduce group disparities
+\citep{datta2017proxy}. Removing \texttt{sex} therefore does not by itself
+establish that a model is fair.
 
-A common first intervention is to remove a sensitive attribute such as
-\texttt{sex} from the model inputs. This is appealing because it is simple to
-explain and implement, but it does not guarantee that the remaining features
-are neutral with respect to the protected attribute. Other variables may still
-carry information associated with \texttt{sex}, either because they reflect
-social patterns or because they encode related aspects of an individual's
-circumstances. We refer to such variables as potential \emph{proxy features}.
-The central question of this study is therefore not only whether \texttt{sex}
-is present in a model, but whether the remaining feature set allows the model
-to recover information associated with \texttt{sex}.
+This paper studies that problem in income classification. We use the UCI Adult
+Income dataset, which contains demographic, educational, occupational, and
+work-related attributes and a binary target indicating whether annual income
+exceeds \$50{,}000 \citep{dua2019uci}. The dataset provides a useful setting
+for a controlled audit because it contains an explicit \texttt{sex} attribute
+alongside several features that may encode social and economic structure.
+Nevertheless, the dataset reflects a particular historical collection process,
+uses a binary representation of sex, and cannot support universal conclusions
+about fairness in income prediction. Our conclusions are therefore limited to
+the observed groups, features, model choices, and audit design.
 
-To investigate this question, we use the UCI Adult Income dataset
-\citep{dua2019uci}, a widely used benchmark containing demographic,
-educational, occupational, and work-related attributes with a binary target
-indicating whether annual income exceeds \$50{,}000. The dataset is useful for
-a controlled audit because it contains an explicit \texttt{sex} attribute and
-several variables that may encode social and economic structure. At the same
-time, its historical collection context and binary coding of sex limit what
-can be inferred from any single experiment. Our conclusions are therefore
-about proxy behavior in this audit design rather than a universal claim about
-fairness in income prediction.
+We ask whether excluding \texttt{sex} changes the fairness of an
+income-classification model and whether remaining features can act as proxies
+for it. To answer this question, we compare models trained with and without
+\texttt{sex}, investigate whether selected remaining features contribute to
+group-related disparities, and compare feature removal with fairness-aware
+mitigation. Predictive performance and group fairness are evaluated together
+so that an apparent fairness improvement is not interpreted without considering
+its effect on utility.
 
-Our study follows a reproducible comparison of model variants. We train a
-baseline XGBoost classifier with \texttt{sex} available and compare it with a
-model that excludes \texttt{sex}. We then examine \texttt{relationship},
-\texttt{marital-status}, \texttt{occupation}, and \texttt{hours-per-week} as
-suspected proxies. TreeSHAP feature rankings, subgroup comparisons, and
-feature-ablation experiments are used as diagnostic tools for assessing
-whether these variables retain predictive information associated with the
-sensitive attribute. Figure~\ref{fig:overview-proposed-method} summarizes the
-overall audit pipeline and the comparison between the unconstrained and
-feature-restricted models.
-It proceeds from data preparation and paired model training through proxy
-identification, feature ablation, and fairness-constrained learning, followed
-by a common held-out evaluation of predictive performance and group fairness.
-
-This paper makes three practical contributions:
+An overview of our method is provided in Figure~\ref{fig:overview-proposed-method}. 
+This paper makes three contributions:
 \begin{itemize}
-  \item It provides a reproducible audit of whether removing an explicit
-  sensitive feature changes fairness measurements in an income-classification
-  pipeline.
-  \item It uses model explanations and ablation to test the narrower claim
-  that particular remaining variables may act as proxies, rather than
-  assuming that all correlated variables are interchangeable.
-  \item It presents feature removal and algorithmic mitigation in a common
-  comparison that distinguishes observed performance changes from the
-  limitations of the selected fairness criteria.
+  \item We provide a reproducible comparison of income-classification models
+  trained with and without the explicit sensitive attribute \texttt{sex}.
+  \item We combine model explanations, subgroup comparisons, and feature
+  ablation to investigate whether specific remaining features behave as
+  potential proxies.
+  \item We compare proxy removal with fairness-constrained learning using
+  common predictive and group-fairness metrics, making the associated
+  performance--fairness trade-offs explicit.
 \end{itemize}
-The remainder of the paper is organized as follows. Section~\ref{sec:related-work} ...
+
+The central contribution is not a claim that any one feature is inherently
+unfair or that one fairness metric is sufficient. Rather, we provide an audit
+of whether removing an explicit sensitive attribute is enough to change
+observed disparities when related information remains available to the model.
+
+The remainder of this paper is structured as follows. Section~\ref{sec:related-work}
+discusses related work, ...
 
 \begin{figure}[t]
   \centering
@@ -122,38 +113,102 @@ The remainder of the paper is organized as follows. Section~\ref{sec:related-wor
 
 \section{Related Work}\label{sec:related-work}
 
-\paragraph{Fairness criteria and trustworthy machine learning.}
-A growing literature in trustworthy machine learning has emphasized that
-predictive accuracy alone does not determine whether a system is ethically or
-legally acceptable for decision-making \citep{barocas2019fairness,
-corbett2017algorithmic,mehrabi2021survey}. Researchers have formalized
-group-level criteria such as statistical parity, equal opportunity, and
-equalized odds, while also stressing that these criteria implement different
-notions of fairness and often conflict with one another in practice
-\citep{dwork2012fairness,hardt2016equality}. Our study follows this
-tradition by reporting both predictive performance and demographic-parity and
-equalized-odds differences rather than collapsing them into a single score.
+\paragraph{Fairness through unawareness, proxy discrimination, and causal fairness.}
+One influential response to discriminatory prediction is to omit protected
+attributes from the model. However, \citet{dwork2012fairness} argue that
+fairness cannot be reduced to ignoring sensitive attributes: their
+\emph{Fairness Through Awareness} framework instead requires similar
+individuals, under a task-specific similarity metric, to receive similar
+treatment. This distinction is directly relevant to our comparison between
+models with and without \texttt{sex}: removing the column is an unawareness
+baseline, not evidence that the remaining representation is fair. The proxy
+discrimination literature makes the same concern operational by studying how
+protected-group information can be inferred from seemingly permissible
+features and how such relationships can be audited \citep{datta2017proxy}.
+By contrast, \citet{kusner2017counterfactual} define counterfactual fairness
+through a causal model, requiring a prediction to remain unchanged in
+counterfactual worlds in which an individual's protected attribute differs.
+Our SHAP rankings, subgroup comparisons, and ablations are deliberately more
+modest: they can identify predictive association and model dependence on
+candidate proxies, but they cannot determine whether a feature is a causal
+mediator, a legitimate correlate, or an impermissible proxy.
 
-\paragraph{Proxy features and explainability.}
-The concern that protected-group information may be reconstructed from other
-features is central to work on proxy discrimination and fairness auditing
-\citep{datta2017proxy}. Explainability methods provide a practical way to
-identify candidate variables that are highly predictive or strongly associated
-with subgroup differences \citep{lundberg2017unified}. We use TreeSHAP as a
-diagnostic lens to rank candidate proxy features. This is not a causal claim:
-a feature's importance or subgroup dependence indicates potential proxy
-structure, not proof that the feature itself generates disparate treatment.
+\paragraph{Group fairness criteria and the problem of incompatible objectives.}
+A second body of work formalizes how disparities should be measured once a
+model has been trained. \citet{hardt2016equality} introduce equality of
+opportunity and equalized odds, connecting fairness to conditional error rates
+and providing a post-processing procedure that uses group membership to alter
+predictions. These ideas motivate our reporting of true- and false-positive
+rate disparities in addition to selection-rate disparities. Yet no single
+criterion resolves the broader normative question. \citet{chouldechova2017fair}
+show that calibration and error-rate parity can conflict when outcome
+prevalence differs between groups, while \citet{kleinberg2017inherent} prove
+closely related impossibility results for risk scores. Critical reviews likewise
+emphasize that criteria such as statistical parity encode different values and
+can lead to different conclusions about the same system
+\citep{corbett2017algorithmic,barocas2019fairness}. Accordingly, our audit
+reports demographic-parity difference and equalized-odds difference as
+separate descriptive outcomes alongside accuracy, balanced accuracy, precision,
+recall, and F1. The Adult experiment therefore tests whether an intervention
+changes particular measured disparities; it does not treat a small value for
+one metric as a complete definition of fairness.
 
-\paragraph{Mitigation strategies and subgroup analysis.}
-A second line of work studies interventions at training time and at inference
-time. Constrained optimization and reductions-based fair classification show
-that it is possible to trade predictive performance against group-based
-constraints \citep{agarwal2018reductions}. Related work on intersectional
-disparities also emphasizes that aggregate performance can conceal large
-subgroup differences \citep{buolamwini2018gender}. Our audit situates feature
-exclusion and fairness-constrained learning within a common evaluation setting,
-while keeping the dataset's binary \texttt{sex} attribute and the associated
-limitations explicit.
+\paragraph{Explainability and feature-level auditing for proxy detection.}
+The third relevant line of work uses explanations to inspect how models reach
+their predictions. \citet{lundberg2017unified} introduce SHAP, an additive
+feature-attribution framework grounded in Shapley values whose local accuracy
+and consistency properties make it attractive for comparing contributions
+across individual predictions. We use TreeSHAP in this spirit to rank features
+in the sex-excluded XGBoost model and to prioritize variables such as
+\texttt{relationship}, \texttt{marital-status}, \texttt{occupation}, and
+\texttt{hours-per-week} for further investigation. SHAP, however, is an
+explanatory device rather than a fairness test: a large attribution indicates
+model reliance, not discriminatory intent or causal influence. This caveat is
+especially important for Adult because its predictors are dependent.
+\citet{aas2021explaining} show that common SHAP approximations can be
+misleading when feature independence assumptions fail and propose
+dependence-aware approximations and grouped explanations. Our use of
+explanations is therefore paired with subgroup comparisons and feature
+ablation. The combination asks a narrower and testable question than
+explanation alone: whether removing a candidate feature changes both model
+behavior and observed group disparities on the same held-out population.
+
+\paragraph{Fairness-aware mitigation and constrained learning.}
+Feature deletion is only one possible intervention, and it may remove useful
+predictive information without directly controlling the disparity of interest.
+\citet{zafar2017fairness} incorporate fairness constraints into the geometry of
+a classifier's decision boundary, making the fairness--accuracy trade-off an
+explicit part of training. \citet{madras2018learning} instead learn
+representations that make sensitive attributes difficult to predict using an
+adversary, relating the training objective to demographic parity, equal
+opportunity, and equalized odds. The reductions approach of
+\citet{agarwal2018reductions} is particularly close to our implementation:
+it converts constrained binary classification into a sequence of
+cost-sensitive classification problems and can optimize error subject to
+demographic-parity or equalized-odds constraints. This provides the conceptual
+basis for Fairlearn's \texttt{ExponentiatedGradient} comparison in our audit.
+Our design places these approaches beside, rather than above, sex removal and
+proxy ablation: all variants use the same fixed split and held-out metrics,
+allowing us to distinguish fairness obtained by deleting features from fairness
+obtained by explicitly constraining predictions. The comparison also preserves
+\texttt{sex} for evaluation and mitigation constraints while excluding it from
+ordinary predictive features, so that the fairness intervention is measurable
+without treating the sensitive attribute as a standard model input.
+
+Taken together, prior work establishes four points that motivate our study:
+omitting a sensitive feature does not rule out proxy discrimination; fairness
+criteria measure different and sometimes incompatible properties; explanations
+can reveal model reliance but do not by themselves establish causality or
+unfairness; and constrained learners offer a direct alternative to feature
+deletion. The gap addressed here is an integrated, reproducible audit that
+connects these pieces in one Adult-income experiment: it compares explicit
+\texttt{sex} removal with targeted proxy ablation, uses SHAP and subgroup
+diagnostics to justify which proxies are tested, and evaluates both feature
+interventions and Fairlearn reductions under common predictive and group-fairness
+metrics. This makes the practical claim more precise than either “remove the
+sensitive attribute” or “optimize a fairness metric”: the question is which
+intervention changes which observed disparities, at what performance and
+explainability cost, under the stated dataset and audit limitations.
 
 
 \section{Methodology}\label{sec:methodology}

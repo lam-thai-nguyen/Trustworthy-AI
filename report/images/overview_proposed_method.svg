@@ -43,15 +43,15 @@
   <text x="882" y="113" text-anchor="middle" class="stage">3  Find proxies</text>
   <g transform="translate(820 145)" class="icon"><circle cx="44" cy="42" r="30"/><path d="M66 64l25 25"/><path d="M27 44l12 12 23-28"/></g>
   <text x="882" y="275" text-anchor="middle" class="strong">TreeSHAP ranking</text>
-  <text x="882" y="310" text-anchor="middle" class="body">subgroup comparison</text>
+  <text x="882" y="310" text-anchor="middle" class="body">sex association</text>
   <line x1="795" y1="335" x2="970" y2="335" class="divider"/>
-  <text x="882" y="370" text-anchor="middle" class="body">relationship</text>
+  <text x="882" y="370" text-anchor="middle" class="body">hours-per-week</text>
   <text x="882" y="400" text-anchor="middle" class="body">marital-status · occupation</text>
 
   <rect x="1075" y="70" width="285" height="350" rx="14" class="box"/>
   <text x="1217" y="113" text-anchor="middle" class="stage">4  Ablate proxies</text>
   <g transform="translate(1166.5 148)" class="icon-muted"><path d="M12 19h78M22 19v65h58V19M34 7h34l7 12H27z"/><path d="M39 35v34M63 35v34M4 91h94"/></g>
-  <text x="1217" y="275" text-anchor="middle" class="strong">retrain variants</text>
+  <text x="1217" y="275" text-anchor="middle" class="strong">Retrain variants</text>
   <text x="1217" y="310" text-anchor="middle" class="body">one feature / set</text>
   <line x1="1130" y1="335" x2="1305" y2="335" class="divider"/>
   <text x="1217" y="370" text-anchor="middle" class="body">performance</text>
@@ -74,9 +74,9 @@
 
   <rect x="227.5" y="570" width="1310" height="185" rx="14" class="result"/>
   <text x="882.5" y="610" text-anchor="middle" class="stage">Common held-out evaluation</text>
-  <text x="882.5" y="648" text-anchor="middle" class="strong">predictive performance</text>
+  <text x="882.5" y="648" text-anchor="middle" class="strong">Predictive performance</text>
   <text x="882.5" y="675" text-anchor="middle" class="body">accuracy · balanced accuracy · precision · recall · F1</text>
-  <text x="882.5" y="704" text-anchor="middle" class="strong">group fairness</text>
+  <text x="882.5" y="704" text-anchor="middle" class="strong">Group fairness</text>
   <text x="882.5" y="735" text-anchor="middle" class="body">demographic parity difference · equalized odds difference</text>
 
   <!-- bus: outer path has clean mitered corners -->

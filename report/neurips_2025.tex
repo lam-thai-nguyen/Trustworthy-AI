@@ -88,9 +88,8 @@ Figure~\ref{fig:overview-proposed-method}. This paper makes three contributions:
 \begin{itemize}
   \item We provide a reproducible comparison of income-classification models
   trained with and without the explicit sensitive attribute \texttt{sex}.
-  \item We combine model explanations, subgroup comparisons, and feature
-  ablation to investigate whether specific remaining features behave as
-  potential proxies.
+  \item We combine model explanations and feature ablation to investigate whether
+  specific remaining features behave as potential proxies.
   \item We compare proxy removal with fairness-constrained learning using
   common predictive and group-fairness metrics, making the associated
   performance--fairness trade-offs explicit.
@@ -128,7 +127,7 @@ features and how such relationships can be audited \citep{datta2017proxy}.
 By contrast, \citet{kusner2017counterfactual} define counterfactual fairness
 through a causal model, requiring a prediction to remain unchanged in
 counterfactual worlds in which an individual's protected attribute differs.
-Our SHAP rankings, subgroup comparisons, and ablations are deliberately more
+Our SHAP rankings and ablations are deliberately more
 modest: they can identify predictive association and model dependence on
 candidate proxies, but they cannot determine whether a feature is a causal
 mediator, a legitimate correlate, or an impermissible proxy.
@@ -168,7 +167,7 @@ especially important for Adult because its features are dependent.
 \citet{aas2021explaining} show that common SHAP approximations can be
 misleading when feature independence assumptions fail and propose
 dependence-aware approximations and grouped explanations. Our use of
-explanations is therefore paired with subgroup comparisons and feature
+explanations is therefore paired with feature
 ablation. The combination asks a narrower and testable question than
 explanation alone: whether removing a candidate feature changes both model
 behavior and observed group disparities on the same held-out population.
@@ -220,7 +219,7 @@ We first clean and encode the dataset using a deterministic preprocessing
 pipeline. Preprocessing is fitted on the training data only and then applied
 to the held-out data to prevent leakage. The sensitive feature,
 \texttt{sex}, is retained outside the model feature matrix so that it remains
-available for subgroup auditing even when it is excluded from model training.
+available for measuring association when it is excluded from model training.
 Further details about the dataset and preprocessing procedure are given in~\ref{subsec:Data}.
 
 \paragraph{Compare models with and without \texttt{sex}.}
@@ -232,7 +231,7 @@ sex-excluded model is therefore treated as an unawareness baseline, not as
 evidence that the remaining features are free of sensitive information.
 
 \paragraph{Identify candidate proxy features.}
-We analyze the sex-excluded model with TreeSHAP and subgroup comparisons
+We analyze the sex-excluded model with TreeSHAP and through its feature asociation with \texttt{sex}
 \citep{lundberg2017unified}. Features are treated as candidate proxies when
 they both contribute to predictions and show relevant differences across the
 observed \texttt{sex} groups. This analysis focuses on features such as
@@ -267,7 +266,7 @@ We use the UCI Adult Income dataset \citep{dua2019uci}, preserving its
 official training and test partitions. The dataset contains demographic,
 educational, occupational, and work-related variables, with a binary target
 indicating whether annual income exceeds \$50{,}000. The sensitive attribute
-\texttt{sex} is retained for subgroup evaluation even when it is excluded
+\texttt{sex} is retained for measuring association when it is excluded
 from model features. The main descriptive
 statistics are summarized in Table~\ref{tab:dataset-summary}. The table
 records the dataset size, the official partition sizes, the six numeric and

@@ -196,19 +196,15 @@ ordinary predictive features, so that the fairness intervention is measurable
 without treating the sensitive attribute as a standard model input.
 
 Taken together, prior work establishes four points that motivate our study:
-omitting a sensitive feature does not rule out proxy discrimination; fairness
-criteria measure different and sometimes incompatible properties; explanations
-can reveal model reliance but do not by themselves establish causality or
-unfairness; and constrained learners offer a direct alternative to feature
-deletion. The gap addressed here is an integrated, reproducible audit that
+(1) omitting a sensitive feature does not rule out proxy discrimination, 
+(2) fairness criteria measure different and sometimes incompatible properties, 
+(3) explanations can reveal model reliance but do not by themselves establish causality or
+unfairness, and (4) constrained learners offer a direct alternative to feature deletion. 
+The gap addressed here is an integrated, reproducible audit that
 connects these pieces in one Adult-income experiment: it compares explicit
 \texttt{sex} removal with targeted proxy ablation, uses SHAP and subgroup
 diagnostics to justify which proxies are tested, and evaluates both feature
-interventions and Fairlearn reductions under common predictive and group-fairness
-metrics. This makes the practical claim more precise than either “remove the
-sensitive attribute” or “optimize a fairness metric”: the question is which
-intervention changes which observed disparities, at what performance and
-explainability cost, under the stated dataset and audit limitations.
+interventions and Fairlearn reductions under common predictive and group-fairness metrics.
 
 
 \section{Methodology}\label{sec:methodology}

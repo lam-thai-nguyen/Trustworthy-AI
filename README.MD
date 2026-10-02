@@ -2,22 +2,18 @@
 
 This repository contains the experiments and manuscript for **“Fairness
 Auditing of an Income-Classification Model: SHAP-Based Analysis of Proxy
-Features.”** The study asks whether removing an explicit sensitive feature is
-enough to reduce unfair group disparities. Using the UCI Adult Income dataset,
-we treat `sex` as the sensitive attribute and predict whether annual income
-exceeds `$50K`.
+Features.”**
+- Code: [./src](./src), [./scripts](./scripts)
+- Data and output: [./data](./data)
+- Report: [./report](./report)
 
-The central finding is that **feature unawareness is not a sufficient fairness
-audit**. Removing `sex` changed predictive performance negligibly and only
-slightly reduced demographic-parity difference (DPD) from `0.1710` to
-`0.1662`. TreeSHAP importance and feature--`sex` association were then used to
-screen candidate proxies. Jointly removing `marital-status`, `occupation`, and
-`hours-per-week` reduced DPD to `0.1576` and equalized-odds difference (EOD) to
-`0.0528`, but also reduced balanced accuracy and F1. Fairness-constrained
-learning produced stronger control of its targeted criterion: demographic
-parity reduced DPD to `0.0122`, while equalized odds reduced EOD to `0.0409`.
-These interventions have different performance and cross-metric trade-offs, so
-the appropriate fairness criterion must be chosen explicitly.
+The study asks whether removing an explicit sensitive feature (here `sex`) is
+enough to make a model fair. The UCI Adult Income dataset's classification task is to predict whether annual income of a person exceeds `$50K`.
+
+## Findings
+- Removing `sex` did not help much (the model is still unfair just the same)
+- Removing proxy-features: visible but minimal effect
+- Fairness-constrained learning: successfully reduces either DPD or EOD, but not both at the same time >>> We need to define a single fairness metric.
 
 ## Audit workflow
 

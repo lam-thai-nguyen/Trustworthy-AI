@@ -86,6 +86,10 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] Added constrained-learning results, comparison table, and
    performance--fairness figures to the Results section.
 
+   [log] Added `README.MD` with a manuscript summary, one consolidated results
+   table, selected workflow and trade-off figures, repository structure,
+   reproduction commands, and study limitations.
+
 ## Scope and limitations
 
 Do not include robustness or threshold analysis. Discuss the dataset's age,

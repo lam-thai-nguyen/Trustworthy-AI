@@ -57,7 +57,7 @@ even when their average predictive performance is high
 attribute, such as \texttt{sex}, from the model inputs. This intervention is
 simple and often presented as a way to prevent discrimination. However, other
 features may still contain information associated with the protected attribute
-and allow the model to reproduce group disparities
+(i.e., \texttt{sex}) and allow the model to reproduce group disparities
 \citep{datta2017proxy}. Removing \texttt{sex} therefore does not by itself
 establish that a model is fair.
 
@@ -70,27 +70,21 @@ sex is inherently inappropriate for prediction or that it should never be
 observed; rather, using it, or information that acts as its proxy, may allow a
 model to reproduce or amplify unequal treatment in decisions related to
 economic opportunity. We use the UCI Adult Income dataset, which contains
-demographic, educational, occupational, and work-related attributes and a
+demographic, educational, occupational, and work-related features and a
 binary target indicating whether annual income exceeds \$50{,}000
 \citep{dua2019uci}. The dataset provides a useful setting for a controlled
 audit because it contains an explicit \texttt{sex} attribute alongside several
-features that may encode social and economic structure. Nevertheless, the
-dataset reflects a particular historical collection process, uses a binary
-representation of sex, and cannot support universal conclusions about fairness
-in income prediction. Our conclusions are therefore limited to the observed
-groups, features, model choices, and audit design.
+features that may encode social and economic structure. 
 
-We ask whether excluding \texttt{sex} changes the fairness of an
+In this study, we ask whether excluding \texttt{sex} changes the fairness of an
 income-classification model and whether remaining features can act as proxies
-for it. To answer this question, we compare models trained with and without
-\texttt{sex}, investigate whether selected remaining features contribute to
-group-related disparities, and compare feature removal with fairness-aware
+for it. To answer this question, we (1) compare models trained with and without
+\texttt{sex}, (2) investigate whether selected remaining features contribute to
+group-related disparities, and (3) compare feature removal with fairness-aware
 mitigation. Predictive performance and group fairness are evaluated together
 so that an apparent fairness improvement is not interpreted without considering
-its effect on utility.
-
-An overview of our method is provided in Figure~\ref{fig:overview-proposed-method}. 
-This paper makes three contributions:
+its effect on utility. An overview of our method is provided in 
+Figure~\ref{fig:overview-proposed-method}. This paper makes three contributions:
 \begin{itemize}
   \item We provide a reproducible comparison of income-classification models
   trained with and without the explicit sensitive attribute \texttt{sex}.
@@ -102,13 +96,11 @@ This paper makes three contributions:
   performance--fairness trade-offs explicit.
 \end{itemize}
 
-The central contribution is not a claim that any one feature is inherently
-unfair or that one fairness metric is sufficient. Rather, we provide an audit
-of whether removing an explicit sensitive attribute is enough to change
-observed disparities when related information remains available to the model.
-
 The remainder of this paper is structured as follows. Section~\ref{sec:related-work}
-discusses related work, ...
+discusses related work; section~\ref{sec:methodology} describes the proposed method,
+dataset, and evaluation metrics; section~\ref{sec:result} presents the experimental results;
+section~\ref{sec:discussion} discusses the limitations and future work; finally, 
+section~\ref{sec:conclusion} concludes.
 
 \begin{figure}[t]
   \centering

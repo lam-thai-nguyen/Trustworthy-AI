@@ -66,9 +66,7 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    constraints, export comparison metrics and figures, and evaluate the
    resulting fairness--performance trade-offs. output to `data/models/constrained_learning`
    and `data/models/constrained_learning_strict`.
-7. **Summarize model results** — Create a comparison table covering all model
-   variants and the selected performance and fairness metrics.
-8. **Write the report** — Produce an under-15-page NIPS-style report focused on
+7. **Write the report** — Produce an under-15-page NIPS-style report focused on
    the finding that removing `sex` is insufficient when proxy features remain,
    and on the trade-offs introduced by fairness constraints.
 

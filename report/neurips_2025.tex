@@ -46,7 +46,29 @@ SHAP-Based Analysis of Proxy Features}
 
 
 \begin{abstract}
-  to be determined
+  Removing a sensitive feature from a machine-learning model does not
+  necessarily remove bias when other features encode related
+  information. We study this issue in income classification using the UCI
+  Adult dataset, treating \texttt{sex} as the sensitive attribute. We compare
+  XGBoost models trained with and without \texttt{sex}, use TreeSHAP and
+  feature--sensitive-attribute association to identify proxies, retrain
+  models after proxy ablation, and evaluate Fairlearn
+  \texttt{ExponentiatedGradient} models with demographic-parity and
+  equalized-odds constraints. On the fixed held-out test split, removing
+  \texttt{sex} changed predictive performance negligibly and reduced
+  demographic-parity difference from 0.1710 to 0.1662, while equalized-odds
+  difference changed from 0.0604 to 0.0575. Jointly removing the selected
+  candidate proxies reduced demographic-parity difference to 0.1576 and
+  equalized-odds difference to 0.0528. 
+  Fairness-constrained learning produced larger changes in
+  the targeted metric: demographic parity reduced demographic-parity
+  difference to 0.0122, whereas equalized odds reduced equalized-odds
+  difference to 0.0409. These interventions also produced different
+  performance and cross-metric trade-offs. The results support a limited
+  conclusion: feature unawareness is not a sufficient fairness audit, and
+  proxy-focused and constraint-based interventions should be evaluated
+  against an explicitly chosen fairness criterion rather than treated as
+  interchangeable definitions of fairness.
 \end{abstract}
 
 \section{Introduction}\label{sec:introduction}
@@ -661,8 +683,47 @@ error rates for qualified and unqualified individuals are more important.
 
 \section{Discussion}\label{sec:discussion}
 
+\paragraph{Limitations.}
+Although this study has shown satisfactory, two limitations remain.
+First, the proxy analysis is associational. That is, TreeSHAP and feature--\texttt{sex}
+association measure model reliance and statistical dependence, respectively,
+but do not establish causality. The selected ranking may also miss weaker or distributed proxy
+information. Second, DPD and EOD capture different properties and neither
+defines fairness in isolation; improving one may leave another unchanged or
+worsen it. The study therefore evaluates operational disparities under
+explicit definitions rather than certifying that any model or mitigation
+strategy is fair.
+
+\paragraph{Future work.}
+Future work should use causal and dependence-aware analyses to investigate
+distributed proxy information, compare multiple models and evaluation splits,
+and involve domain stakeholders in selecting fairness criteria and acceptable
+utility trade-offs for the intended application.
+
 \section{Conclusion}\label{sec:conclusion}
 
+This study evaluated whether removing \texttt{sex} is sufficient to reduce
+fairness disparities in an income-classification model. In the UCI Adult
+experiment, excluding \texttt{sex} had almost no effect on predictive
+performance and only slightly reduced DPD and EOD, demonstrating that
+unawareness did not remove the observed group disparity. A TreeSHAP- and
+association-based screen identified candidate proxies, and joint removal of
+the selected features reduced both reported disparities further, but at a
+measurable cost in balanced accuracy and F1 and without eliminating disparity.
+
+Fairness-constrained retraining produced stronger control of the targeted
+criterion, but the demographic-parity and equalized-odds models behaved
+differently across both fairness measures and predictive performance. The
+central conclusion is therefore not that one intervention is universally
+best. Rather, fairness claims require an explicit criterion, held-out
+evaluation of both utility and group outcomes, and analysis of information that
+remains after the sensitive feature is removed. For this dataset and
+experimental design, removing \texttt{sex} is a useful comparison condition,
+not a sufficient fairness intervention. These conclusions are limited by the
+the associational nature of the proxy analysis and the differing meanings of
+the fairness metrics. Future work should investigate proxy relationships
+causally and select fairness criteria with stakeholders whose decisions and
+harms are represented by the application.
 
 
 

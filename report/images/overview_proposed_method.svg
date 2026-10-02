@@ -24,7 +24,7 @@
   <rect x="70" y="70" width="285" height="350" rx="14" class="box"/>
   <text x="212" y="113" text-anchor="middle" class="stage">1  Prepare data</text>
   <g transform="translate(167 145)" class="icon"><path d="M0 17h90M0 43h90M0 69h90"/><path d="M14 3v82M42 3v82M70 3v82"/><rect x="0" y="3" width="90" height="82" rx="4"/></g>
-  <text x="212" y="275" text-anchor="middle" class="strong">Adult dataset</text>
+  <text x="212" y="275" text-anchor="middle" class="strong">UCI Adult Income</text>
   <text x="212" y="310" text-anchor="middle" class="body">clean + encode</text>
   <text x="212" y="345" text-anchor="middle" class="body">train / test split</text>
   <line x1="125" y1="370" x2="300" y2="370" class="divider"/>

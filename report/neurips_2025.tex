@@ -223,8 +223,8 @@ available for measuring association when it is excluded from model training.
 Further details about the dataset and preprocessing procedure are given in~\ref{subsec:Data}.
 
 \paragraph{Compare models with and without \texttt{sex}.}
-We train XGBoost models using the same data split, preprocessing, and decision
-rule. One baseline includes \texttt{sex}, while a paired model removes only
+We train XGBoost models, with one baseline including \texttt{sex}, 
+while a paired model removes only
 that feature. This comparison isolates the effect of explicit feature removal
 while leaving the model family and experimental conditions unchanged. The
 sex-excluded model is therefore treated as an unawareness baseline, not as
@@ -233,11 +233,8 @@ evidence that the remaining features are free of sensitive information.
 \paragraph{Identify candidate proxy features.}
 We analyze the sex-excluded model with TreeSHAP and through its feature asociation with \texttt{sex}
 \citep{lundberg2017unified}. Features are treated as candidate proxies when
-they both contribute to predictions and show relevant differences across the
-observed \texttt{sex} groups. This analysis focuses on features such as
-\texttt{relationship}, \texttt{marital-status}, \texttt{occupation}, and
-\texttt{hours-per-week}. These diagnostics identify model associations rather
-than establish causal or normative claims about any feature.
+they both contribute to predictions (i.e., used by the model) and 
+have a high association with \texttt{sex} (i.e., encode \texttt{sex}). 
 
 \paragraph{Ablate proxies and retrain model variants.}
 We test these candidate proxies through controlled ablation. Individual
@@ -257,9 +254,8 @@ fairness-constrained learning.
 
 \paragraph{Common held-out evaluation.}
 Finally, all model variants are evaluated on the same held-out data using a
-common prediction rule. We compare predictive performance and group fairness
-for the baseline, sex-excluded, proxy-ablated, and constrained models. The
-specific evaluation measures and their definitions are described in~\ref{subsec:Metrics}.
+common prediction rule. The specific evaluation measures and their definitions 
+are described in~\ref{subsec:Metrics}.
 
 \subsection{Dataset}\label{subsec:Data}
 We use the UCI Adult Income dataset \citep{dua2019uci}, preserving its

@@ -582,6 +582,83 @@ limitations.
 
 \subsection{Fairness-Constrained Retraining}
 
+We next evaluated whether fairness constraints could reduce the observed
+disparities more directly than feature removal. We trained two
+\texttt{ExponentiatedGradient} models using the sex-excluded feature set:
+one with a demographic-parity constraint and one with an equalized-odds
+constraint. In both cases, \texttt{sex} was used only as the sensitive feature
+for the constraint and evaluation, not as a predictive input. The models used
+the same fixed training and test partitions, preprocessing procedure, and
+held-out evaluation metrics as the unconstrained models.
+
+Table~\ref{tab:constrained-learning} compares the constrained models with the
+sex-excluded model and the joint proxy-ablation model. The demographic-parity
+constraint reduced DPD from 0.1662 to 0.0122, substantially narrowing the
+difference in positive prediction rates. This improvement was accompanied by
+lower BAcc and F1, which decreased from 0.7996 and 0.7125 to 0.7405 and
+0.6276, respectively. The equalized-odds constraint reduced EOD from 0.0575
+to 0.0409, with a smaller performance reduction than demographic parity:
+BAcc was 0.7813 and F1 was 0.6904. However, its DPD remained 0.1241, showing
+that reducing conditional error-rate disparities does not produce equal
+selection rates.
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \caption{Predictive performance and fairness of unconstrained,
+  proxy-ablated, and fairness-constrained models.}
+  \label{tab:constrained-learning}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lccccccc}
+    \toprule
+    Model & Acc & BAcc & Pr & Rc & F1 & DPD & EOD \\
+    \midrule
+    Without sex & 0.8748 & 0.7996 & 0.7783 & 0.6570 & 0.7125 & 0.1662 & 0.0575 \\
+    Without selected proxies & 0.8690 & 0.7844 & 0.7775 & 0.6240 & 0.6923 & 0.1576 & 0.0528 \\
+    Demographic parity & 0.8513 & 0.7405 & 0.7684 & 0.5304 & 0.6276 & 0.0122 & 0.2904 \\
+    Equalized odds & 0.8702 & 0.7813 & 0.7904 & 0.6128 & 0.6904 & 0.1241 & 0.0409 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The two constraints therefore produce different outcomes. Demographic parity
+nearly equalizes the overall positive prediction rates, but its EOD increases
+to 0.2904 because the resulting TPRs differ substantially between groups:
+0.7763 for female records and 0.4859 for male records. Equalized odds instead
+reduces the TPR and FPR disparities, with TPRs of 0.6475 and 0.6066 and FPRs
+of 0.0335 and 0.0609 for female and male records, respectively. Its remaining
+DPD reflects the different group outcome prevalences in the test data. These
+results demonstrate that satisfying one operational fairness criterion does
+not guarantee the other and that constrained learning introduces a measurable
+performance--fairness trade-off.
+
+Figure~\ref{fig:constrained-tradeoff} shows the same trade-off in terms of
+balanced accuracy and the two fairness disparities. Figure~\ref{fig:constrained-group-rates}
+shows the group-level selection rates, TPRs, and FPRs underlying the aggregate
+DPD and EOD values. Together, the results indicate that fairness constraints
+provide more direct control over the targeted metric than proxy deletion, but
+they do not eliminate the need to state which fairness criterion is being
+optimized. In practice, the demographic-parity model is appropriate when
+similar positive prediction rates across groups are the primary institutional
+requirement, whereas the equalized-odds model is preferable when comparable
+error rates for qualified and unqualified individuals are more important.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{images/constrained_learning_tradeoff.png}
+  \caption{Performance--fairness trade-offs for the sex-excluded,
+  proxy-ablated, and fairness-constrained models.}
+  \label{fig:constrained-tradeoff}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{images/constrained_learning_group_rates.png}
+  \caption{Female and male selection rates, true-positive rates, and
+  false-positive rates for the compared model variants.}
+  \label{fig:constrained-group-rates}
+\end{figure}
+
 \section{Discussion}\label{sec:discussion}
 
 \section{Conclusion}\label{sec:conclusion}

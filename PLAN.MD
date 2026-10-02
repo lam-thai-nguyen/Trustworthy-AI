@@ -83,6 +83,9 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] Added the [0,1] value ranges and interpretation of lower versus higher DPD and EOD
    values.
 
+   [log] Added constrained-learning results, comparison table, and
+   performance--fairness figures to the Results section.
+
 ## Scope and limitations
 
 Do not include robustness or threshold analysis. Discuss the dataset's age,

@@ -1,0 +1,37 @@
+{
+  "sensitive_column": "sex",
+  "target_column": "income",
+  "prediction_column": "prediction",
+  "overall": {
+    "rows": 16281,
+    "accuracy": 0.8512990602542841,
+    "balanced_accuracy": 0.7404820197632995,
+    "precision": 0.768361581920904,
+    "recall": 0.5304212168486739,
+    "f1": 0.6275957544993078
+  },
+  "by_group": {
+    "Female": {
+      "rows": 5421,
+      "selection_rate": 0.1549529607083564,
+      "true_positive_rate": 0.7762711864406779,
+      "false_positive_rate": 0.07907265576485199,
+      "precision": 0.5452380952380952,
+      "recall": 0.7762711864406779
+    },
+    "Male": {
+      "rows": 10860,
+      "selection_rate": 0.1671270718232044,
+      "true_positive_rate": 0.4858722358722359,
+      "false_positive_rate": 0.03064176749079432,
+      "precision": 0.8716253443526171,
+      "recall": 0.4858722358722359
+    }
+  },
+  "fairness": {
+    "demographic_parity_difference": 0.012174111114848007,
+    "equalized_odds_difference": 0.29039895056844206,
+    "true_positive_rate_difference": 0.29039895056844206,
+    "false_positive_rate_difference": 0.04843088827405767
+  }
+}

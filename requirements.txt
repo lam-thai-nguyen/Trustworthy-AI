@@ -5,6 +5,7 @@ charset-normalizer==3.5.1
 cloudpickle==3.1.2
 contourpy==1.4.0
 cycler==0.12.1
+fairlearn==0.13.0
 fastjsonschema==2.22.2
 fonttools==4.66.1
 idna==3.20

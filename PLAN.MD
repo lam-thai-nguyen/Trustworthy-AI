@@ -60,6 +60,12 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
 6. **Apply fairness mitigation** — Use Fairlearn `ExponentiatedGradient` with
    demographic-parity or equalized-odds constraints, then compare it with the
    unconstrained models.
+
+   [log] Added `scripts/constrain_learning.py` to train Fairlearn
+   `ExponentiatedGradient` models with demographic-parity and equalized-odds
+   constraints, export comparison metrics and figures, and evaluate the
+   resulting fairness--performance trade-offs. output to `data/models/constrained_learning`
+   and `data/models/constrained_learning_strict`.
 7. **Summarize model results** — Create a comparison table covering all model
    variants and the selected performance and fairness metrics.
 8. **Write the report** — Produce an under-15-page NIPS-style report focused on

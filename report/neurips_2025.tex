@@ -229,10 +229,10 @@ interventions and Fairlearn reductions under common predictive and group-fairnes
 \section{Methodology}\label{sec:methodology}
 \subsection{Our method}
 Figure~\ref{fig:overview-proposed-method} summarizes the fairness
-audit as a five-stage workflow: prepare the UCI Adult Income dataset, compare XGBoost
-models with and without \texttt{sex}, identify and ablate candidate proxy
-features, and apply fairness constraints before evaluating every variant on
-the same held-out test set.
+audit as a five-stage workflow: prepare the UCI Adult Income dataset, select
+the classifier and compare XGBoost models with and without \texttt{sex},
+identify and ablate candidate proxy features, and apply fairness constraints
+before evaluating every variant on the same held-out test set.
 
 \paragraph{Prepare the data.}
 We first clean and encode the dataset using a deterministic preprocessing
@@ -242,13 +242,22 @@ to the held-out data to prevent leakage. The sensitive feature,
 available for measuring association when it is excluded from model training.
 Further details about the dataset and preprocessing procedure are given in~\ref{subsec:Data}.
 
-\paragraph{Compare models with and without \texttt{sex}.}
-We train XGBoost models, with one baseline including \texttt{sex}, 
-while a paired model removes only
-that feature. This comparison isolates the effect of explicit feature removal
-while leaving the model family and experimental conditions unchanged. The
-sex-excluded model is therefore treated as an unawareness baseline, not as
-evidence that the remaining features are free of sensitive information.
+\paragraph{Select a classifier and compare models with and without \texttt{sex}.}
+Before the fairness audit, we compare eight classifiers using the
+same official training and held-out test partitions and the same
+training-only preprocessing. The comparison includes Logistic Regression,
+Decision Tree, Random Forest, HistGradientBoosting, CatBoost, Support Vector
+Machine, KNN, and XGBoost. We select the model with the strongest overall
+predictive balance, giving primary consideration to balanced accuracy and F1
+because the income labels are imbalanced, while also reporting fairness
+metrics. XGBoost provides the best balanced accuracy, recall, and F1 in this
+comparison and is therefore used for the subsequent audit. We then train
+matched XGBoost models, with one baseline including \texttt{sex}, while a
+paired model removes only that feature. This comparison isolates the effect of
+explicit feature removal while leaving the model family and experimental
+conditions unchanged. The sex-excluded model is therefore treated as an
+unawareness baseline, not as evidence that the remaining features are free of
+sensitive information.
 
 \paragraph{Identify candidate proxy features.}
 We analyze the sex-excluded model with TreeSHAP and through its feature asociation with \texttt{sex}
@@ -416,6 +425,60 @@ outcome, while the other never.
 
 \section{Results}\label{sec:result}
 
+\subsection{Classifier Selection}
+
+Before conducting the fairness audit, we compared eight classifiers on the same official UCI Adult training and held-out test
+partitions. The models used the same training-only preprocessing and excluded
+\texttt{sex} from their predictive features, while retaining it for group
+fairness evaluation. The comparison included linear, tree-based, distance-based,
+kernel, and boosting approaches. Table~\ref{tab:classifier-selection} reports
+the predictive and fairness results.
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \caption{Comparison of classifiers on the UCI Adult test split.}
+  \label{tab:classifier-selection}
+  \begin{tabular}{lccccccc}
+    \toprule
+    Model & Acc & BAcc & Pr & Rc & F1 & DPD & EOD \\
+    \midrule
+    Logistic Regression & 0.7996 & 0.6132 & 0.7065 & 0.2598 & 0.3798 & \textbf{0.0428} & 0.0315 \\
+    Decision Tree & 0.8553 & 0.7519 & 0.7674 & 0.5559 & 0.6448 & 0.1329 & 0.0400 \\
+    Random Forest & 0.8507 & 0.7670 & 0.7170 & 0.6082 & 0.6581 & 0.1732 & 0.0757 \\
+    HistGradientBoosting & 0.8732 & 0.7957 & 0.7773 & 0.6490 & 0.7074 & 0.1707 & 0.0605 \\
+    CatBoost & \textbf{0.8758} & 0.7979 & \textbf{0.7870} & 0.6503 & 0.7121 & 0.1638 & 0.0542 \\
+    Support Vector Machine & 0.8014 & 0.6135 & 0.7237 & 0.2574 & 0.3797 & 0.0438 & \textbf{0.0303} \\
+    KNN & 0.7947 & 0.6264 & 0.6351 & 0.3073 & 0.4142 & 0.0773 & 0.0307 \\
+    XGBoost & 0.8748 & \textbf{0.7996} & 0.7783 & \textbf{0.6570} & \textbf{0.7125} & 0.1662 & 0.0575 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+XGBoost achieved the highest balanced accuracy (0.7996), recall (0.6570),
+and F1 score (0.7125), while CatBoost achieved the highest accuracy (0.8758)
+and precision (0.7870). The difference between the two boosting models was
+small: CatBoost had slightly higher accuracy and precision, whereas XGBoost
+performed better on balanced accuracy, recall, and F1. The remaining models
+performed less strongly on the primary predictive measures, with the
+distance-based, linear, and kernel models showing particularly lower recall
+and F1 scores.
+
+The fairness metrics show a similar trade-off rather than a universally
+dominant classifier. Logistic Regression and the Support Vector Machine had
+particularly low DPD (0.0428 and 0.0438) and EOD (0.0315 and 0.0303),
+indicating much smaller measured disparities than the boosting models.
+However, both models also had substantially weaker predictive performance,
+especially in recall and F1. Random Forest had the largest DPD and EOD,
+while KNN also traded lower disparities for weak predictive performance.
+XGBoost therefore provided
+the strongest overall predictive balance for the imbalanced classification
+task and was selected for the subsequent sensitive-feature, proxy-feature,
+and fairness-mitigation analyses. This selection does not imply that XGBoost
+minimizes every fairness metric or has the highest value for every predictive
+metric.
+
 \subsection{XGBoost With and Without the Sensitive Feature}
 
 We first compared two XGBoost models on the same held-out test split: 
@@ -504,13 +567,13 @@ not a high-priority model proxy.
     Feature & SHAP $\downarrow$ &
     Association & Proxy? \\
     \midrule
-    marital-status & 1.276 & 0.462 & Yes \\
+    marital-status & \textbf{1.276} & 0.462 & Yes \\
     age & 0.750 & 0.100 & No \\
     occupation & 0.612 & 0.424 & Yes \\
     capital-gain & 0.592 & 0.067 & No \\
     education-num & 0.509 & 0.006 & No \\
     hours-per-week & 0.394 & 0.265 & Yes \\
-    relationship & 0.292 & 0.649 & No \\
+    relationship & 0.292 & \textbf{0.649} & No \\
     capital-loss & 0.183 & 0.042 & No \\
     workclass & 0.145 & 0.153 & No \\
     fnlwgt & 0.138 & 0.025 & No \\
@@ -557,18 +620,20 @@ indicate better predictive performance.
 \begin{table}[t]
   \centering
   \footnotesize
-  \caption{Proxy ablation studies on predictive performance and fairness.}
+  \caption{Proxy ablation studies on predictive performance and fairness.
+  Bold values are highest for performance metrics and lowest for fairness
+  metrics.}
   \label{tab:proxy-ablation}
   \begin{tabular}{lcccccccc}
     \toprule
     Model & Acc & BAcc & Pr & Rc & F1 & DPD & EOD \\
     \midrule
     With sex & 0.8746 & 0.7990 & 0.7786 & 0.6557 & 0.7119 & 0.1710 & 0.0604 \\
-    Without sex & 0.8748 & 0.7996 & 0.7783 & 0.6570 & 0.7125 & 0.1662 & 0.0575 \\
+    Without sex & \textbf{0.8748} & \textbf{0.7996} & 0.7783 & \textbf{0.6570} & \textbf{0.7125} & 0.1662 & 0.0575 \\
     Without marital-status & 0.8736 & 0.7975 & 0.7763 & 0.6531 & 0.7094 & 0.1661 & 0.0580 \\
     Without occupation & 0.8668 & 0.7858 & 0.7631 & 0.6323 & 0.6916 & 0.1638 & 0.0607 \\
-    Without hours-per-week & 0.8730 & 0.7943 & 0.7792 & 0.6451 & 0.7058 & 0.1657 & 0.0569 \\
-    Without selected proxies & 0.8690 & 0.7844 & 0.7775 & 0.6240 & 0.6923 & 0.1576 & 0.0528 \\
+    Without hours-per-week & 0.8730 & 0.7943 & \textbf{0.7792} & 0.6451 & 0.7058 & 0.1657 & 0.0569 \\
+    Without selected proxies & 0.8690 & 0.7844 & 0.7775 & 0.6240 & 0.6923 & \textbf{0.1576} & \textbf{0.0528} \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -628,17 +693,18 @@ selection rates.
   \centering
   \footnotesize
   \caption{Predictive performance and fairness of unconstrained,
-  proxy-ablated, and fairness-constrained models.}
+  proxy-ablated, and fairness-constrained models. Bold values are highest for
+  performance metrics and lowest for fairness metrics.}
   \label{tab:constrained-learning}
   \setlength{\tabcolsep}{4pt}
   \begin{tabular}{lccccccc}
     \toprule
     Model & Acc & BAcc & Pr & Rc & F1 & DPD & EOD \\
     \midrule
-    Without sex & 0.8748 & 0.7996 & 0.7783 & 0.6570 & 0.7125 & 0.1662 & 0.0575 \\
+    Without sex & \textbf{0.8748} & \textbf{0.7996} & 0.7783 & \textbf{0.6570} & \textbf{0.7125} & 0.1662 & 0.0575 \\
     Without selected proxies & 0.8690 & 0.7844 & 0.7775 & 0.6240 & 0.6923 & 0.1576 & 0.0528 \\
-    Demographic parity & 0.8513 & 0.7405 & 0.7684 & 0.5304 & 0.6276 & 0.0122 & 0.2904 \\
-    Equalized odds & 0.8702 & 0.7813 & 0.7904 & 0.6128 & 0.6904 & 0.1241 & 0.0409 \\
+    Demographic parity & 0.8513 & 0.7405 & 0.7684 & 0.5304 & 0.6276 & \textbf{0.0122} & 0.2904 \\
+    Equalized odds & 0.8702 & 0.7813 & \textbf{0.7904} & 0.6128 & 0.6904 & 0.1241 & \textbf{0.0409} \\
     \bottomrule
   \end{tabular}
 \end{table}

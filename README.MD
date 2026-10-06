@@ -20,9 +20,21 @@ enough to make a model fair. The UCI Adult Income dataset's classification task 
 ![Five-stage fairness audit workflow](report/images/overview_proposed_method.svg)
 
 The workflow uses a fixed official UCI Adult train/test split, fits
-preprocessing on training data only, keeps `sex` available for evaluation, and
-compares matched XGBoost models with feature-removal and Fairlearn
+preprocessing on training data only, keeps `sex` available for evaluation,
+compares several classifiers to select the primary model, and then evaluates
+matched XGBoost models with feature-removal and Fairlearn
 `ExponentiatedGradient` interventions.
+
+### Classifier selection
+
+The classifier-selection experiment compares Logistic Regression, Decision
+Tree, Random Forest, HistGradientBoosting, CatBoost, Support Vector Machine,
+KNN, and XGBoost using the same preprocessing and held-out test split. The
+comparison reports accuracy, balanced accuracy, precision, recall, F1, DPD,
+and EOD. XGBoost achieved the highest balanced accuracy, recall, and F1,
+while CatBoost achieved the highest accuracy and precision. XGBoost was
+therefore selected for the subsequent fairness audit based on the primary
+predictive metrics; it was not best on every metric.
 
 ## Key results
 
@@ -73,6 +85,7 @@ Run the pipeline stages in order:
 ```bash
 python3 scripts/run_etl.py
 python3 scripts/eda.py
+python3 scripts/compare_classifiers.py
 python3 scripts/train_xgboost.py
 python3 scripts/evaluate_baseline.py
 python3 scripts/compare_sex_feature.py

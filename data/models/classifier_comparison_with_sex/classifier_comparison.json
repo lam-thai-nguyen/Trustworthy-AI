@@ -1,0 +1,341 @@
+{
+  "feature_columns": [
+    "age",
+    "fnlwgt",
+    "education-num",
+    "capital-gain",
+    "capital-loss",
+    "hours-per-week",
+    "workclass",
+    "education",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "sex",
+    "native-country"
+  ],
+  "excluded_features": [],
+  "results": [
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.7995823352373933,
+        "balanced_accuracy": 0.6130584185972987,
+        "precision": 0.7062986553432413,
+        "recall": 0.2594903796151846,
+        "f1": 0.37953983647081196
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.05792289245526656,
+          "true_positive_rate": 0.2847457627118644,
+          "false_positive_rate": 0.03022148623473401,
+          "precision": 0.535031847133758,
+          "recall": 0.2847457627118644
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.10119705340699815,
+          "true_positive_rate": 0.2549140049140049,
+          "false_positive_rate": 0.03537611783271962,
+          "precision": 0.7552320291173794,
+          "recall": 0.2549140049140049
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.043274160951731595,
+        "equalized_odds_difference": 0.029831757797859515,
+        "true_positive_rate_difference": 0.029831757797859515,
+        "false_positive_rate_difference": 0.005154631597985612
+      },
+      "model": "Logistic Regression",
+      "train_seconds": 0.285,
+      "transformed_feature_count": 108
+    },
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.8530188563356059,
+        "balanced_accuracy": 0.7508568738406954,
+        "precision": 0.7564419343452171,
+        "recall": 0.5572022880915236,
+        "f1": 0.6417128312621649
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.08282604685482384,
+          "true_positive_rate": 0.5135593220338983,
+          "false_positive_rate": 0.03022148623473401,
+          "precision": 0.6748329621380846,
+          "recall": 0.5135593220338983
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.21952117863720075,
+          "true_positive_rate": 0.5651105651105651,
+          "false_positive_rate": 0.07154129405576012,
+          "precision": 0.7718120805369127,
+          "recall": 0.5651105651105651
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.1366951317823769,
+        "equalized_odds_difference": 0.05155124307666681,
+        "true_positive_rate_difference": 0.05155124307666681,
+        "false_positive_rate_difference": 0.041319807821026115
+      },
+      "model": "Decision Tree",
+      "train_seconds": 0.529,
+      "transformed_feature_count": 108
+    },
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.8511762176770469,
+        "balanced_accuracy": 0.7691363577341646,
+        "precision": 0.7158022444646649,
+        "recall": 0.6136245449817993,
+        "f1": 0.6607867842643147
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.08171923999262129,
+          "true_positive_rate": 0.5423728813559322,
+          "false_positive_rate": 0.025460567170358103,
+          "precision": 0.7223476297968398,
+          "recall": 0.5423728813559322
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.2627992633517495,
+          "true_positive_rate": 0.6265356265356266,
+          "false_positive_rate": 0.1070489216201999,
+          "precision": 0.7147862648913805,
+          "recall": 0.6265356265356266
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.18108002335912823,
+        "equalized_odds_difference": 0.08416274517969435,
+        "true_positive_rate_difference": 0.08416274517969435,
+        "false_positive_rate_difference": 0.08158835444984179
+      },
+      "model": "Random Forest",
+      "train_seconds": 61.645,
+      "transformed_feature_count": 108
+    },
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.8721822983846201,
+        "balanced_accuracy": 0.7946511563719485,
+        "precision": 0.7743239042586261,
+        "recall": 0.6476859074362975,
+        "f1": 0.705365991788192
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.07987456188895038,
+          "true_positive_rate": 0.5864406779661017,
+          "false_positive_rate": 0.01800869385220451,
+          "precision": 0.7990762124711316,
+          "recall": 0.5864406779661017
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.256353591160221,
+          "true_positive_rate": 0.6587837837837838,
+          "false_positive_rate": 0.08403471856917412,
+          "precision": 0.7704741379310345,
+          "recall": 0.6587837837837838
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.17647902927127063,
+        "equalized_odds_difference": 0.07234310581768211,
+        "true_positive_rate_difference": 0.07234310581768211,
+        "false_positive_rate_difference": 0.06602602471696961
+      },
+      "model": "HistGradientBoosting",
+      "train_seconds": 1.328,
+      "transformed_feature_count": 108
+    },
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.8753762053927892,
+        "balanced_accuracy": 0.7984481550552733,
+        "precision": 0.7836403371838901,
+        "recall": 0.6526261050442018,
+        "f1": 0.712157752872748
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.08079690094078583,
+          "true_positive_rate": 0.588135593220339,
+          "false_positive_rate": 0.0188366797764438,
+          "precision": 0.7922374429223744,
+          "recall": 0.588135593220339
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.2546040515653775,
+          "true_positive_rate": 0.6643120393120393,
+          "false_positive_rate": 0.07916885849552867,
+          "precision": 0.7822784810126582,
+          "recall": 0.6643120393120393
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.17380715062459168,
+        "equalized_odds_difference": 0.07617644609170027,
+        "true_positive_rate_difference": 0.07617644609170027,
+        "false_positive_rate_difference": 0.06033217871908487
+      },
+      "model": "CatBoost",
+      "train_seconds": 2.596,
+      "transformed_feature_count": 108
+    },
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.8016092377618083,
+        "balanced_accuracy": 0.6138465417989458,
+        "precision": 0.7251461988304093,
+        "recall": 0.2579303172126885,
+        "f1": 0.38051400076716535
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.05460247186865892,
+          "true_positive_rate": 0.2830508474576271,
+          "false_positive_rate": 0.026702546056717034,
+          "precision": 0.5641891891891891,
+          "recall": 0.2830508474576271
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.0987108655616943,
+          "true_positive_rate": 0.2533783783783784,
+          "false_positive_rate": 0.03248290373487638,
+          "precision": 0.769589552238806,
+          "recall": 0.2533783783783784
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.044108393693035375,
+        "equalized_odds_difference": 0.029672469079248698,
+        "true_positive_rate_difference": 0.029672469079248698,
+        "false_positive_rate_difference": 0.005780357678159348
+      },
+      "model": "Support Vector Machine",
+      "train_seconds": 0.246,
+      "transformed_feature_count": 108
+    },
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.7946686321479025,
+        "balanced_accuracy": 0.6263641764005904,
+        "precision": 0.6351423965609887,
+        "recall": 0.3073322932917317,
+        "f1": 0.4142281408796215
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.06290352333517801,
+          "true_positive_rate": 0.2830508474576271,
+          "false_positive_rate": 0.03601738770440902,
+          "precision": 0.4897360703812317,
+          "recall": 0.2830508474576271
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.13996316758747698,
+          "true_positive_rate": 0.3117321867321867,
+          "false_positive_rate": 0.06641241451867438,
+          "precision": 0.6677631578947368,
+          "recall": 0.3117321867321867
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.07705964425229897,
+        "equalized_odds_difference": 0.030395026814265362,
+        "true_positive_rate_difference": 0.028681339274559625,
+        "false_positive_rate_difference": 0.030395026814265362
+      },
+      "model": "KNN",
+      "train_seconds": 10.705,
+      "transformed_feature_count": 108
+    },
+    {
+      "sensitive_column": "sex",
+      "target_column": "income",
+      "prediction_column": "prediction",
+      "overall": {
+        "rows": 16281,
+        "accuracy": 0.8746391499293655,
+        "balanced_accuracy": 0.7990431993636802,
+        "precision": 0.7786353812905218,
+        "recall": 0.655746229849194,
+        "f1": 0.7119266055045872
+      },
+      "by_group": {
+        "Female": {
+          "rows": 5421,
+          "selection_rate": 0.08485519276886183,
+          "true_positive_rate": 0.6101694915254238,
+          "false_positive_rate": 0.0206996481059822,
+          "precision": 0.782608695652174,
+          "recall": 0.6101694915254238
+        },
+        "Male": {
+          "rows": 10860,
+          "selection_rate": 0.2558931860036832,
+          "true_positive_rate": 0.664004914004914,
+          "false_positive_rate": 0.08114150447133088,
+          "precision": 0.7779776898164807,
+          "recall": 0.664004914004914
+        }
+      },
+      "fairness": {
+        "demographic_parity_difference": 0.17103799323482138,
+        "equalized_odds_difference": 0.060441856365348684,
+        "true_positive_rate_difference": 0.05383542247949025,
+        "false_positive_rate_difference": 0.060441856365348684
+      },
+      "model": "XGBoost",
+      "train_seconds": 0.984,
+      "transformed_feature_count": 108
+    }
+  ]
+}

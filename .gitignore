@@ -13,3 +13,7 @@ __pycache__/
 
 # vscode
 .vscode/
+
+# oversized generated model artifacts
+data/models/classifier_comparison/random_forest/model.joblib
+data/models/classifier_comparison_with_sex/random_forest/model.joblib

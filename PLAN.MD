@@ -15,8 +15,8 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
 
 ## Implementation plan
 
-1. **Build a reproducible pipeline** — Load the dataset from `data/adult` and clean it, create a
-   fixed train/test split, and train the baseline XGBoost model.
+1. **Build a reproducible pipeline** — Load the dataset from `data/adult`,
+   clean it, and create the fixed official train/test split.
 
    [log] From the repository root, run `python3 scripts/run_etl.py`. It writes cleaned data and
    run metadata to `data/processed/`.
@@ -27,19 +27,37 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] Updated EDA outputs with a paper-oriented dataset summary table and relationship-based
    above-$50K rate figure alongside the income distribution and sex-group rate figure.
 
+2. **Select the classifier** — Compare Logistic Regression, Decision Tree,
+   Random Forest, HistGradientBoosting, CatBoost, Support Vector Machine, KNN,
+   and XGBoost on the fixed official split, using predictive and fairness
+   metrics to select the model for the subsequent audit.
+
+   [log] Added `scripts/compare_classifiers.py` to train the eight classifier
+   variants with training-only preprocessing, retain `sex` for fairness
+   evaluation, and export predictions and metrics under
+   `data/models/classifier_comparison/`.
+
+   [log] The comparison selected XGBoost for the main audit because it achieved
+   the highest balanced accuracy, recall, and F1. CatBoost achieved slightly
+   higher accuracy and precision, so the result supports XGBoost as the
+   strongest overall predictive choice under the primary metrics rather than
+   as the best model on every metric.
+3. **Build a reproducible XGBoost pipeline** — Fit the selected baseline
+   XGBoost model on the fixed official split.
+
    [log] Added `scripts/train_xgboost.py` and `trustworthy_ai.model` to fit the baseline XGBoost model with training-only preprocessing on the fixed official split; artifacts and test predictions are written to `data/models/baseline_xgboost/`.
-2. **Measure baseline fairness** — Report accuracy, balanced accuracy, precision,
+4. **Measure baseline fairness** — Report accuracy, balanced accuracy, precision,
    recall, F1, demographic-parity difference, and equalized-odds difference
    across `sex`.
 
    [log] Added reusable baseline evaluation metrics and wrote performance and fairness results to `data/models/baseline_xgboost/metrics.json`.
 
    [log] Exported manuscript-ready baseline performance and group-fairness metrics for the XGBoost comparison.
-3. **Compare feature removal** — Evaluate models with `sex` included and removed
+5. **Compare feature removal** — Evaluate models with `sex` included and removed
    to determine whether excluding the explicit sensitive feature reduces bias.
 
    [log] Added `scripts/compare_sex_feature.py` to train matched XGBoost models with and without `sex`, write comparison tables to `data/models/sex_feature_comparison/`, and generate the planned performance/fairness and group prediction-rate figures.
-4. **Analyze proxy features** — Use TreeSHAP rankings, subgroup comparisons, and
+6. **Analyze proxy features** — Use TreeSHAP rankings, subgroup comparisons, and
    feature ablation to identify features such as `relationship`,
    `marital-status`, `occupation`, and `hours-per-week` that retain information
    about `sex`.
@@ -47,7 +65,7 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] Added `scripts/analyze_proxy_features.py` to aggregate TreeSHAP
    contributions by original feature and export subgroup distribution and
    sex-association evidence for the sex-excluded model.
-5. **Evaluate proxy removal** — Retrain after removing the strongest suspected
+7. **Evaluate proxy removal** — Retrain after removing the strongest suspected
    proxies and measure the fairness, performance, and explainability trade-offs.
 
    [log] The proxy analysis script now retrains individual and joint ablations
@@ -57,7 +75,7 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    [log] Added pre-specified negative controls (`education-num`, `capital-gain`,
    `capital-loss`, and `race`) to the proxy screen; none were marked as
    candidate proxies, and their evidence is exported separately.
-6. **Apply fairness mitigation** — Use Fairlearn `ExponentiatedGradient` with
+8. **Apply fairness mitigation** — Use Fairlearn `ExponentiatedGradient` with
    demographic-parity or equalized-odds constraints, then compare it with the
    unconstrained models.
 
@@ -66,7 +84,7 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    constraints, export comparison metrics and figures, and evaluate the
    resulting fairness--performance trade-offs. output to `data/models/constrained_learning`
    and `data/models/constrained_learning_strict`.
-7. **Write the report** — Produce an under-15-page NIPS-style report focused on
+9. **Write the report** — Produce an under-15-page NIPS-style report focused on
    the finding that removing `sex` is insufficient when proxy features remain,
    and on the trade-offs introduced by fairness constraints.
 

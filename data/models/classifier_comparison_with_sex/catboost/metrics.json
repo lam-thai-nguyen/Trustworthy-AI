@@ -35,6 +35,6 @@
     "false_positive_rate_difference": 0.06033217871908487
   },
   "model": "CatBoost",
-  "train_seconds": 2.596,
+  "train_seconds": 2.236,
   "transformed_feature_count": 108
 }

@@ -35,6 +35,6 @@
     "false_positive_rate_difference": 0.005780357678159348
   },
   "model": "Support Vector Machine",
-  "train_seconds": 0.246,
+  "train_seconds": 0.247,
   "transformed_feature_count": 108
 }

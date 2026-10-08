@@ -35,6 +35,6 @@
     "false_positive_rate_difference": 0.005154631597985612
   },
   "model": "Logistic Regression",
-  "train_seconds": 0.285,
+  "train_seconds": 0.257,
   "transformed_feature_count": 108
 }

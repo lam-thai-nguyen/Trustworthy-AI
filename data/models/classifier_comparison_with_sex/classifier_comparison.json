@@ -54,7 +54,7 @@
         "false_positive_rate_difference": 0.005154631597985612
       },
       "model": "Logistic Regression",
-      "train_seconds": 0.285,
+      "train_seconds": 0.257,
       "transformed_feature_count": 108
     },
     {
@@ -94,7 +94,7 @@
         "false_positive_rate_difference": 0.041319807821026115
       },
       "model": "Decision Tree",
-      "train_seconds": 0.529,
+      "train_seconds": 0.483,
       "transformed_feature_count": 108
     },
     {
@@ -134,7 +134,7 @@
         "false_positive_rate_difference": 0.08158835444984179
       },
       "model": "Random Forest",
-      "train_seconds": 61.645,
+      "train_seconds": 62.926,
       "transformed_feature_count": 108
     },
     {
@@ -174,7 +174,7 @@
         "false_positive_rate_difference": 0.06602602471696961
       },
       "model": "HistGradientBoosting",
-      "train_seconds": 1.328,
+      "train_seconds": 1.257,
       "transformed_feature_count": 108
     },
     {
@@ -214,7 +214,7 @@
         "false_positive_rate_difference": 0.06033217871908487
       },
       "model": "CatBoost",
-      "train_seconds": 2.596,
+      "train_seconds": 2.236,
       "transformed_feature_count": 108
     },
     {
@@ -254,7 +254,7 @@
         "false_positive_rate_difference": 0.005780357678159348
       },
       "model": "Support Vector Machine",
-      "train_seconds": 0.246,
+      "train_seconds": 0.247,
       "transformed_feature_count": 108
     },
     {
@@ -294,7 +294,7 @@
         "false_positive_rate_difference": 0.030395026814265362
       },
       "model": "KNN",
-      "train_seconds": 10.705,
+      "train_seconds": 11.615,
       "transformed_feature_count": 108
     },
     {
@@ -334,7 +334,7 @@
         "false_positive_rate_difference": 0.060441856365348684
       },
       "model": "XGBoost",
-      "train_seconds": 0.984,
+      "train_seconds": 0.939,
       "transformed_feature_count": 108
     }
   ]

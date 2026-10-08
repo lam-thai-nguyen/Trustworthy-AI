@@ -35,6 +35,6 @@
     "false_positive_rate_difference": 0.030395026814265362
   },
   "model": "KNN",
-  "train_seconds": 10.705,
+  "train_seconds": 11.615,
   "transformed_feature_count": 108
 }

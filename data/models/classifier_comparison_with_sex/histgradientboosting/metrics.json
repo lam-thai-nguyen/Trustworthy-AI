@@ -35,6 +35,6 @@
     "false_positive_rate_difference": 0.06602602471696961
   },
   "model": "HistGradientBoosting",
-  "train_seconds": 1.328,
+  "train_seconds": 1.257,
   "transformed_feature_count": 108
 }

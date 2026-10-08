@@ -427,12 +427,12 @@ outcome, while the other never.
 
 \subsection{Classifier Selection}
 
-Before conducting the fairness audit, we compared eight classifiers on the same official UCI Adult training and held-out test
-partitions. The models used the same training-only preprocessing and excluded
-\texttt{sex} from their predictive features, while retaining it for group
-fairness evaluation. The comparison included linear, tree-based, distance-based,
-kernel, and boosting approaches. Table~\ref{tab:classifier-selection} reports
-the predictive and fairness results.
+Before conducting the fairness audit, we compared eight classifiers on the same
+official UCI Adult training and held-out test partitions. Each model used all
+available features, including \texttt{sex}, together with the same
+training-only preprocessing. The comparison included linear, tree-based,
+distance-based, kernel, and boosting approaches. Table~\ref{tab:classifier-selection}
+reports the predictive and fairness results.
 
 \begin{table}[t]
   \centering
@@ -444,38 +444,38 @@ the predictive and fairness results.
     \toprule
     Model & Acc & BAcc & Pr & Rc & F1 & DPD & EOD \\
     \midrule
-    Logistic Regression & 0.7996 & 0.6132 & 0.7065 & 0.2598 & 0.3798 & \textbf{0.0428} & 0.0315 \\
-    Decision Tree & 0.8553 & 0.7519 & 0.7674 & 0.5559 & 0.6448 & 0.1329 & 0.0400 \\
-    Random Forest & 0.8507 & 0.7670 & 0.7170 & 0.6082 & 0.6581 & 0.1732 & 0.0757 \\
-    HistGradientBoosting & 0.8732 & 0.7957 & 0.7773 & 0.6490 & 0.7074 & 0.1707 & 0.0605 \\
-    CatBoost & \textbf{0.8758} & 0.7979 & \textbf{0.7870} & 0.6503 & 0.7121 & 0.1638 & 0.0542 \\
-    Support Vector Machine & 0.8014 & 0.6135 & 0.7237 & 0.2574 & 0.3797 & 0.0438 & \textbf{0.0303} \\
-    KNN & 0.7947 & 0.6264 & 0.6351 & 0.3073 & 0.4142 & 0.0773 & 0.0307 \\
-    XGBoost & 0.8748 & \textbf{0.7996} & 0.7783 & \textbf{0.6570} & \textbf{0.7125} & 0.1662 & 0.0575 \\
+    Logistic Regression & 0.7996 & 0.6131 & 0.7063 & 0.2595 & 0.3795 & \textbf{0.0433} & 0.0298 \\
+    Decision Tree & 0.8530 & 0.7509 & 0.7564 & 0.5572 & 0.6417 & 0.1367 & 0.0516 \\
+    Random Forest & 0.8512 & 0.7691 & 0.7158 & 0.6136 & 0.6608 & 0.1811 & 0.0842 \\
+    HistGradientBoosting & 0.8722 & 0.7947 & 0.7743 & 0.6477 & 0.7054 & 0.1765 & 0.0723 \\
+    CatBoost & \textbf{0.8754} & 0.7984 & \textbf{0.7836} & 0.6526 & \textbf{0.7122} & 0.1738 & 0.0762 \\
+    Support Vector Machine & 0.8016 & 0.6138 & 0.7251 & 0.2579 & 0.3805 & 0.0441 & \textbf{0.0297} \\
+    KNN & 0.7947 & 0.6264 & 0.6351 & 0.3073 & 0.4142 & 0.0771 & 0.0304 \\
+    XGBoost & 0.8746 & \textbf{0.7990} & 0.7786 & \textbf{0.6557} & 0.7119 & 0.1710 & 0.0604 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-XGBoost achieved the highest balanced accuracy (0.7996), recall (0.6570),
-and F1 score (0.7125), while CatBoost achieved the highest accuracy (0.8758)
-and precision (0.7870). The difference between the two boosting models was
-small: CatBoost had slightly higher accuracy and precision, whereas XGBoost
-performed better on balanced accuracy, recall, and F1. The remaining models
+XGBoost achieved the highest balanced accuracy (0.7990) and recall (0.6557),
+while CatBoost achieved the highest accuracy (0.8754), precision (0.7836),
+and F1 score (0.7122). The difference between the two boosting models was
+small: CatBoost had slightly higher accuracy, precision, and F1, whereas
+XGBoost performed better on balanced accuracy and recall. The remaining models
 performed less strongly on the primary predictive measures, with the
 distance-based, linear, and kernel models showing particularly lower recall
 and F1 scores.
 
 The fairness metrics show a similar trade-off rather than a universally
 dominant classifier. Logistic Regression and the Support Vector Machine had
-particularly low DPD (0.0428 and 0.0438) and EOD (0.0315 and 0.0303),
+particularly low DPD (0.0433 and 0.0441) and EOD (0.0298 and 0.0297),
 indicating much smaller measured disparities than the boosting models.
 However, both models also had substantially weaker predictive performance,
 especially in recall and F1. Random Forest had the largest DPD and EOD,
 while KNN also traded lower disparities for weak predictive performance.
-XGBoost therefore provided
-the strongest overall predictive balance for the imbalanced classification
-task and was selected for the subsequent sensitive-feature, proxy-feature,
-and fairness-mitigation analyses. This selection does not imply that XGBoost
+XGBoost therefore provided the strongest overall predictive balance for the
+imbalanced classification task under the primary selection criteria and was
+selected for the subsequent sensitive-feature, proxy-feature, and
+fairness-mitigation analyses. This selection does not imply that XGBoost
 minimizes every fairness metric or has the highest value for every predictive
 metric.
 

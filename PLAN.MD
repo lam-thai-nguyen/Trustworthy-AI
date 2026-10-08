@@ -37,11 +37,13 @@ Use the [UCI Adult Income dataset](https://archive.ics.uci.edu/dataset/2/adult):
    evaluation, and export predictions and metrics under
    `data/models/classifier_comparison/`.
 
-   [log] The comparison selected XGBoost for the main audit because it achieved
-   the highest balanced accuracy, recall, and F1. CatBoost achieved slightly
-   higher accuracy and precision, so the result supports XGBoost as the
-   strongest overall predictive choice under the primary metrics rather than
-   as the best model on every metric.
+   [log] Re-ran the classifier comparison with `sex` included as a predictive
+   feature using `python3 scripts/compare_classifiers.py --include-sex
+   --output-dir data/models/classifier_comparison_with_sex`. XGBoost remained
+   the selected model, achieving the highest balanced accuracy (0.7990) and
+   recall (0.6557), while CatBoost achieved slightly higher accuracy (0.8754),
+   precision (0.7836), and F1 (0.7122). XGBoost is therefore the strongest
+   overall choice under the primary metrics, but not the best on every metric.
 3. **Build a reproducible XGBoost pipeline** — Fit the selected baseline
    XGBoost model on the fixed official split.
 

@@ -35,6 +35,6 @@
     "false_positive_rate_difference": 0.041319807821026115
   },
   "model": "Decision Tree",
-  "train_seconds": 0.529,
+  "train_seconds": 0.483,
   "transformed_feature_count": 108
 }

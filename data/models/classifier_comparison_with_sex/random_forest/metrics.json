@@ -35,6 +35,6 @@
     "false_positive_rate_difference": 0.08158835444984179
   },
   "model": "Random Forest",
-  "train_seconds": 61.645,
+  "train_seconds": 62.926,
   "transformed_feature_count": 108
 }

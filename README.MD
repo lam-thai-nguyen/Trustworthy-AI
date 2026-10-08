@@ -21,8 +21,8 @@ enough to make a model fair. The UCI Adult Income dataset's classification task 
 
 The workflow uses a fixed official UCI Adult train/test split, fits
 preprocessing on training data only, keeps `sex` available for evaluation,
-compares several classifiers to select the primary model, and then evaluates
-matched XGBoost models with feature-removal and Fairlearn
+compares several classifiers using all available features to select the primary
+model, and then evaluates matched XGBoost models with feature-removal and Fairlearn
 `ExponentiatedGradient` interventions.
 
 ### Classifier selection
@@ -30,11 +30,12 @@ matched XGBoost models with feature-removal and Fairlearn
 The classifier-selection experiment compares Logistic Regression, Decision
 Tree, Random Forest, HistGradientBoosting, CatBoost, Support Vector Machine,
 KNN, and XGBoost using the same preprocessing and held-out test split. The
-comparison reports accuracy, balanced accuracy, precision, recall, F1, DPD,
-and EOD. XGBoost achieved the highest balanced accuracy, recall, and F1,
-while CatBoost achieved the highest accuracy and precision. XGBoost was
-therefore selected for the subsequent fairness audit based on the primary
-predictive metrics; it was not best on every metric.
+comparison includes every feature, including `sex`, and reports accuracy,
+balanced accuracy, precision, recall, F1, DPD, and EOD. XGBoost achieved the
+highest balanced accuracy and recall, while CatBoost achieved the highest
+accuracy, precision, and F1. XGBoost was therefore selected for the subsequent
+fairness audit based on the primary predictive metrics; it was not best on
+every metric.
 
 ## Key results
 
@@ -44,6 +45,7 @@ EOD indicate smaller observed group disparities; higher balanced accuracy
 
 | Model | Accuracy | BAcc | F1 | DPD | EOD |
 | --- | ---: | ---: | ---: | ---: | ---: |
+| With `sex` | 0.8746 | 0.7990 | 0.7119 | 0.1710 | 0.0604 |
 | Without `sex` | 0.8748 | 0.7996 | 0.7125 | 0.1662 | 0.0575 |
 | Without selected proxies | 0.8690 | 0.7844 | 0.6923 | 0.1576 | 0.0528 |
 | Demographic parity constraint | 0.8513 | 0.7405 | 0.6276 | 0.0122 | 0.2904 |
@@ -85,18 +87,14 @@ Run the pipeline stages in order:
 ```bash
 python3 scripts/run_etl.py
 python3 scripts/eda.py
-python3 scripts/compare_classifiers.py
+python3 scripts/compare_classifiers.py --include-sex \
+  --output-dir data/models/classifier_comparison_with_sex
 python3 scripts/train_xgboost.py
 python3 scripts/evaluate_baseline.py
 python3 scripts/compare_sex_feature.py
 python3 scripts/analyze_proxy_features.py
 python3 scripts/constrain_learning.py
 ```
-
-Each stage writes its outputs under `data/`, leaving the sensitive attribute
-available for fairness evaluation even when it is excluded from predictive
-features. The manuscript can be compiled from `report/` with the local LaTeX
-toolchain.
 
 ## Scope and limitations
 

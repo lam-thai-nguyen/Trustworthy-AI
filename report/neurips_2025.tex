@@ -118,7 +118,8 @@ Figure~\ref{fig:overview-proposed-method}. This paper makes three contributions:
 \end{itemize}
 
 The remainder of this paper is structured as follows. Section~\ref{sec:related-work}
-discusses related work; section~\ref{sec:methodology} describes the method,
+discusses related work; section~\ref{sec:problem-formulation} formulates the problem;
+section~\ref{sec:methodology} describes the method,
 dataset, and evaluation metrics; section~\ref{sec:result} presents the experimental results;
 section~\ref{sec:discussion} discusses the limitations and future work; finally, 
 section~\ref{sec:conclusion} concludes.
@@ -224,6 +225,36 @@ connects these pieces in one Adult-income experiment: it compares explicit
 \texttt{sex} removal with targeted proxy ablation, uses SHAP and subgroup
 diagnostics to justify which proxies are tested, and evaluates both feature
 interventions and Fairlearn reductions under common predictive and group-fairness metrics.
+
+
+\section{Problem formulation}\label{sec:problem-formulation}
+
+Let $\mathcal{D}=\{(x_i,a_i,y_i)\}_{i=1}^{n}$ denote the UCI Adult Income dataset,
+where $x_i$ contains the observed demographic, educational, occupational, and
+work-related features, $a_i\in\{0,1\}$ denotes \texttt{sex}, and
+$y_i\in\{0,1\}$ indicates whether the individual's income exceeds \$50{,}000.
+The objective is to learn a binary classifier
+\[
+f_\theta:\mathcal{X}\rightarrow\{0,1\},
+\qquad
+\hat{y}_i=f_\theta(x_i),
+\]
+that predicts the income label from the available features.
+
+We study two feature representations. In the full-feature setting,
+\[
+x_i^{+}=(x_i,a_i),
+\]
+where \texttt{sex} is included as a model input. In the sex-excluded setting,
+\[
+x_i^{-}=x_i,
+\]
+where \texttt{sex} is withheld from prediction but retained for evaluation.
+The classifier parameters are learned on the training split by minimizing a
+classification loss, while predictive performance is assessed on the held-out
+test split. The central empirical question is whether excluding $a_i$ changes predictive
+performance or group-level outcomes, and whether other features act as
+proxies for $a_i$.
 
 
 \section{Methodology}\label{sec:methodology}

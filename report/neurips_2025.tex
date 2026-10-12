@@ -158,8 +158,7 @@ A second body of work formalizes how disparities should be measured once a
 model has been trained. \citet{hardt2016equality} introduce equality of
 opportunity and equalized odds, connecting fairness to conditional error rates
 and providing a post-processing procedure that uses group membership to alter
-predictions. These ideas motivate our reporting of true- and false-positive
-rate disparities in addition to selection-rate disparities. Yet no single
+predictions. Yet no single
 criterion resolves the broader normative question. \citet{chouldechova2017fair}
 show that calibration and error-rate parity can conflict when outcome
 prevalence differs between groups, while \citet{kleinberg2017inherent} prove
@@ -169,7 +168,7 @@ can lead to different conclusions about the same system
 \citep{corbett2017algorithmic,barocas2019fairness}. Accordingly, our audit
 reports demographic-parity difference and equalized-odds difference as
 separate descriptive outcomes alongside accuracy, balanced accuracy, precision,
-recall, and F1. The Adult experiment therefore tests whether an intervention
+recall, and F1. The UCI Adult Income experiment therefore tests whether an intervention
 changes particular measured disparities; it does not treat a small value for
 one metric as a complete definition of fairness.
 
@@ -184,7 +183,7 @@ in the sex-excluded XGBoost model and to prioritize variables such as
 \texttt{hours-per-week} for further investigation. SHAP, however, is an
 explanatory device rather than a fairness test: a large attribution indicates
 model reliance, not discriminatory intent or causal influence. This caveat is
-especially important for Adult because its features are dependent.
+especially important for UCI Adult Income dataset because its features are dependent.
 \citet{aas2021explaining} show that common SHAP approximations can be
 misleading when feature independence assumptions fail and propose
 dependence-aware approximations and grouped explanations. Our use of
@@ -221,7 +220,7 @@ Taken together, prior work establishes four points that motivate our study:
 (3) explanations can reveal model reliance but do not by themselves establish causality or
 unfairness, and (4) constrained learners offer a direct alternative to feature deletion. 
 The gap addressed here is an integrated, reproducible audit that
-connects these pieces in one Adult-income experiment: it compares explicit
+connects these pieces in one UCI Adult Income experiment: it compares explicit
 \texttt{sex} removal with targeted proxy ablation, uses SHAP and subgroup
 diagnostics to justify which proxies are tested, and evaluates both feature
 interventions and Fairlearn reductions under common predictive and group-fairness metrics.
@@ -293,7 +292,7 @@ sensitive information.
 \paragraph{Identify candidate proxy features.}
 We analyze the sex-excluded model with TreeSHAP and through its feature asociation with \texttt{sex}
 \citep{lundberg2017unified}. Features are treated as candidate proxies when
-they both contribute to predictions (i.e., used by the model) and 
+they both contribute to predictions (i.e., are used by the model) and 
 have a high association with \texttt{sex} (i.e., encode \texttt{sex}). 
 
 \paragraph{Ablate proxies and retrain model variants.}

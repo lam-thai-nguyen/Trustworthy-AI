@@ -328,6 +328,17 @@ eight categorical features, the imbalanced target distribution, the observed
 \texttt{Missing}. Thus, it gives the scale and composition of the data used
 throughout the audit without presenting any model outcome.
 
+We preprocess the data deterministically without dropping rows: whitespace is
+stripped, categorical \texttt{?} values are replaced with the explicit
+category \texttt{Missing}, numeric columns are converted to integers, and the
+income labels are mapped to 0 (\(\leq\$50{,}000\)) and 1 (\(>\$50{,}000\)).
+For modeling, the six numeric features pass through unchanged and the
+categorical features are one-hot encoded, with unknown test-time categories
+ignored. The resulting representation has 108 dimensions when \texttt{sex}
+is included and 106 dimensions when it is excluded; preprocessing is fitted
+on the training split only and \texttt{sex} is retained separately for
+group-level fairness evaluation.
+
 \begin{table}[t]
   \centering
   \footnotesize

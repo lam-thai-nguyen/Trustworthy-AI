@@ -472,8 +472,50 @@ Before conducting the fairness audit, we compared eight classifiers on the same
 official UCI Adult training and held-out test partitions. Each model used all
 available features, including \texttt{sex}, together with the same
 training-only preprocessing. The comparison included linear, tree-based,
-distance-based, kernel, and boosting approaches. Table~\ref{tab:classifier-selection}
-reports the predictive and fairness results.
+distance-based, kernel, and boosting approaches. Table~\ref{tab:classifier-hyperparameters} summarizes the fixed
+hyperparameters used for each classifier. All models used
+random\_state=42 where supported; KNN has no random-state parameter.
+Table~\ref{tab:classifier-selection} reports the predictive and fairness results.
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  % \setlength{\tabcolsep}{3.5pt}
+  \caption{Hyperparameters used in the classifier-selection experiment.}
+  \label{tab:classifier-hyperparameters}
+  \begin{tabular}{@{}lp{0.65\linewidth}@{}}
+    \toprule
+    Model & Hyperparameters \\
+    \midrule
+    Logistic Regression &
+      max\_iter=300, solver=liblinear \\
+    \addlinespace
+    Decision Tree &
+    max\_depth=12, min\_samples\_leaf=2 \\
+    \addlinespace
+    Random Forest &
+    n\_estimators=300, max\_features=sqrt, n\_jobs=1 \\
+    \addlinespace
+    HistGradientBoosting &
+    max\_iter=300, learning\_rate=0.1, max\_leaf\_nodes=31 \\
+    \addlinespace
+    CatBoost &
+    iterations=300, depth=6, learning\_rate=0.1,
+    loss\_function=Logloss, thread\_count=1 \\
+    \addlinespace
+    Support Vector Machine &
+    C=1.0, max\_iter=3000 \\
+    \addlinespace
+    KNN &
+    n\_neighbors=15, weights=distance, n\_jobs=1 \\
+    \addlinespace
+    XGBoost &
+      n\_estimators=300, max\_depth=6, learning\_rate=0.1,
+      subsample=1.0, colsample\_bytree=1.0, tree\_method=hist,
+      n\_jobs=1, objective=binary:logistic, eval\_metric=logloss \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \begin{table}[t]
   \centering
@@ -496,6 +538,8 @@ reports the predictive and fairness results.
     \bottomrule
   \end{tabular}
 \end{table}
+
+
 
 XGBoost achieved the highest balanced accuracy (0.7990) and recall (0.6557),
 while CatBoost achieved the highest accuracy (0.8754), precision (0.7836),
